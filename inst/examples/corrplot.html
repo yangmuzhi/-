@@ -1,0 +1,135 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>MangoCorrplotID25a4e60230a</title>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+  <style type="text/css">
+    body {
+          color: #444444;
+          font-family: Arial,Helvetica,sans-serif;
+          font-size: 75%;
+    }
+    a {
+          color: #4D87C7;
+          text-decoration: none;
+    }
+
+  </style>
+</head>
+<body>
+
+ 
+<!-- jsHeader -->
+	<script type="text/javascript" src="html5/js/d3.v2.min.js"></script>
+	<script type="text/javascript" src="html5/js/jquery-1.8.3.js"></script>
+	<script type="text/javascript" src="html5/js/jquery-ui-1.9.2.custom.min.js"></script>
+	<link href="html5/css/ui-lightness/jquery-ui-1.9.2.custom.css" rel="stylesheet">
+	<link href="html5/css/style.css" rel="stylesheet">
+
+<!-- jsHeader -->
+
+<!-- jsChart -->	
+	<script>
+		var mvisCorrplotData = {
+ "matrixLength": 11,
+"color": [ "#053061", "#FFFFFF", "#67001F" ],
+"colNames": [ "mpg", "cyl", "disp", "hp", "drat", "wt", "qsec", "vs", "am", "gear", "carb" ],
+"matrixData": [ [      1, -0.85216, -0.84755, -0.77617, 0.68117, -0.86766, 0.41868, 0.66404, 0.59983, 0.48028, -0.55093 ],
+[ -0.85216,      1, 0.90203, 0.83245, -0.69994, 0.7825, -0.59124, -0.81081, -0.52261, -0.49269, 0.52699 ],
+[ -0.84755, 0.90203,      1, 0.79095, -0.71021, 0.88798, -0.4337, -0.71042, -0.59123, -0.55557, 0.39498 ],
+[ -0.77617, 0.83245, 0.79095,      1, -0.44876, 0.65875, -0.70822, -0.7231, -0.2432, -0.1257, 0.74981 ],
+[ 0.68117, -0.69994, -0.71021, -0.44876,      1, -0.71244, 0.091205, 0.44028, 0.71271, 0.69961, -0.09079 ],
+[ -0.86766, 0.7825, 0.88798, 0.65875, -0.71244,      1, -0.17472, -0.55492, -0.6925, -0.58329, 0.42761 ],
+[ 0.41868, -0.59124, -0.4337, -0.70822, 0.091205, -0.17472,      1, 0.74454, -0.22986, -0.21268, -0.65625 ],
+[ 0.66404, -0.81081, -0.71042, -0.7231, 0.44028, -0.55492, 0.74454,      1, 0.16835, 0.20602, -0.56961 ],
+[ 0.59983, -0.52261, -0.59123, -0.2432, 0.71271, -0.6925, -0.22986, 0.16835,      1, 0.79406, 0.057534 ],
+[ 0.48028, -0.49269, -0.55557, -0.1257, 0.69961, -0.58329, -0.21268, 0.20602, 0.79406,      1, 0.27407 ],
+[ -0.55093, 0.52699, 0.39498, 0.74981, -0.09079, 0.42761, -0.65625, -0.56961, 0.057534, 0.27407,      1 ] ],
+"orderList": {
+ "original": [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 ],
+"AOE": [      4,      9,      8,     10,      3,      7,      6,      5,      2,      1,     11 ],
+"FPC": [     11,      1,      2,      4,      9,      3,      6,     10,      8,      7,      5 ],
+"hclust": [ 8, 4, 5, 3, 9, 2, 6, 7, 10, 11, 1 ],
+"name": [      8,      3,      4,      7,      5,     11,      9,     10,      1,      6,      2 ] 
+} 
+}
+
+	</script>
+
+<script type="text/javascript" src="html5/js/corrplot.js"></script>
+
+	<!-- divChart -->
+
+<div id = "content-wrapper" style="width:800">
+
+
+	<div class='corrplot' id='corrplot-1'>
+
+	  
+	<svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+	<defs>
+		<linearGradient id="grad2" x1="0%" y1="0%" x2="0%" y2="100%">
+		  <stop offset="0%" style="stop-color:#053061;stop-opacity:1" />
+		  <stop offset="50%" style="stop-color:#FFFFFF;stop-opacity:1" />
+		  <stop offset="100%" style="stop-color:#67001F;stop-opacity:1" />
+		</linearGradient>
+	</defs>
+
+	</svg>
+	</div>
+	
+<div id="bottonBox" style="width:800px;height:100px">
+	<div class="subButton" style="width:80px">
+		 <p class="buttonLabel"> Order:</p>
+		<select id="orderSelect" style="width:80px">
+			<option value="original">original</option>
+			<option value="AOE">AOE</option>
+			<option value="FPC">FPC</option>
+			<option value="hclust">hclust</option>
+			<option value="name">name</option>
+		</select>
+	
+	</div>
+	
+	<div class="subButton" style="width:190px; margin-left:100px">
+	<p class="buttonLabel"> DiagShow:</p>
+		<div id="diagDiv">
+			<input type="radio" id="diagUpper" name="diag" /><label for="diagUpper">Upper</label>
+			<input type="radio" id="diagLower" name="diag"  /><label for="diagLower">Lower</label>
+			<input type="radio" id="diagFull" name="diag" checked="checked"/><label for="diagFull">Full</label>
+		</div>
+	</div>
+	<div class="subButton" style="  width:240px; margin-left:300px">
+	<p class="buttonLabel"> Legend:</p>
+			<div id="legendDiv" style="position: relative">
+				<input type="radio" id="circle" name="legend" checked="checked"/><label for="circle">Circle</label>
+				<input type="radio" id="square" name="legend" /><label for="square">Square</label>
+				<input type="radio" id="ellipse" name="legend"/><label for="ellipse">Ellipse</label>
+			</div>
+	</div>
+
+<div class="subButton" style="  width:200px; margin-left:550px;">
+	 <p class="buttonLabel"> Number show: </p>
+	 <input type="checkbox" id="numShow" name="numShow" /><label id="numShowLabel" for="numShow">Show</label>
+	
+</div>
+
+	
+
+</div>
+
+
+
+ 
+<div><span>Chart ID: <a href="Chart_MangoCorrplotID25a4e60230a.html">MangoCorrplotID25a4e60230a</a></span><br />
+ 
+<!-- htmlFooter -->
+<span> 
+<a href="http://www.mango-solutions.com/">Mango Solutions</a>
+</span></div>
+</body>
+</html>
