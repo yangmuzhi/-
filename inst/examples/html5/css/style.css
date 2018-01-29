@@ -11,7 +11,7 @@
 	stroke:black;
 }
  path {
-				
+
 	stroke-width: 1;
 	fill: none;
 }
@@ -43,7 +43,7 @@
 .rectCellNormal{
 	opacity: 0;
 }
-	
+
 .geo_province {
   fill: #aaa;
   fill-opacity: .8;
@@ -77,11 +77,11 @@ font-family:'Microsoft Yahei';
 font-size:15px
 }
 
- 
+
 .rule {
   shape-rendering: crispEdges;
 }
-	
+
 button.ui-button-icon-only { width: 1.3em; }
 
 .zoomClassPercent {
@@ -105,7 +105,7 @@ zoom:1.5;
 }
 .textLabels{
    font-size:9pt;
-   font-family:sans-serif;	
+   font-family:sans-serif;
 }
 .labelNormal {
    font-size:10pt;
@@ -169,7 +169,7 @@ zoom:1.5;
 .clusterPlot path {
 	  display: none;
 	}
-	
+
 .axisLabel_ggplot{
 		font: 20px sans-serif;
 	}

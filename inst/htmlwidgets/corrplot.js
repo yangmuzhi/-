@@ -3,6 +3,7 @@ HTMLWidgets.widget({
   type: 'output',
 
   initialize: function(el, width, height) {
+
      console.log("init")
   //定义div元素
 	 var wrapDiv = d3.select(el)
@@ -27,7 +28,7 @@ HTMLWidgets.widget({
 //x:包括data和settings
 //
   renderValue: function(el, x, wrapDiv) {
-     console.log("render")
+     console.log({"x":ssx})
 	 wrapDiv.selectAll("div").remove();
 	 wrapDiv.selectAll("svg").remove();
 
@@ -48,7 +49,7 @@ HTMLWidgets.widget({
 	//console.log(svg.attr("id"))
 	//console.log(el)
 	//console.log(x)
-
+  
     //instance.setOption(x, true);
 	//instance.setTheme(eval(x.theme + "Theme"));
 	mvisCorrplotData = x['data']
@@ -136,18 +137,21 @@ HTMLWidgets.widget({
 			}
 		};
 
-		var parse_mvisCorrplotData = function(a){
+		var parse_mvisCorrplotData = function(a){//该函数计算矩阵可视化每个cell的属性值
 			if (a.length==1){
 				outArray = new Array(1)
+          //计算precent，决定后面变量的大小
+          //
 				percent = (a[0] - middleValue)/(maxValue - middleValue);
 				r = (percent*(maxR-minR)+minR)/2;
-				cx = cellSize*(0.5) + lineStart;
-				cy = cellSize*(0.5) + lineStart;
+				cx = cellSize*(0.5) + lineStart;//
+				cy = cellSize*(0.5) + lineStart;//
 				color = colorSelector(a[0])//一个自定义函数
 				outArray[0] = new Array(r, cx, cy, color, a[0], cellSize*0+lineStart, cellSize*0+lineStart )
 				return outArray
 			}else{
 				outArray = new Array(n*n)
+        //矩阵，开始遍历。
 				for(var i = 0; i < n; i++){
 					for(var j=0; j < n; j++){
 						if (a[i][j] > middleValue) percent = (a[i][j] - middleValue)/(maxValue - middleValue);
@@ -162,8 +166,8 @@ HTMLWidgets.widget({
 				return outArray;
 			}
 		}
-
-//
+/*           */
+//该函数是一个自定函数，用于产生颜色
 		var colorSelector = function(v){
 
 			var returnCol = new Array(3);
@@ -190,7 +194,8 @@ HTMLWidgets.widget({
 			}
 		}
 
-
+/* ################ */
+//
 		for (i=0; i<n+1; i++){
 			vLineArray[i] =  new Array(cellSize*i + lineStart, lineStart, cellSize*i + lineStart, lineEnd)
 			hLineArray[i] = new Array(lineStart, cellSize*i + lineStart, lineEnd, cellSize*i + lineStart)
@@ -199,13 +204,13 @@ HTMLWidgets.widget({
 
 		$( "#legend" ).buttonset();
 		$( "#diag" ).buttonset();
-
+//
 	//circles.on("mouseout.tooltip",outCell)
 
-	function init_corrplot( method){
+function init_corrplot( method){
 
 
-
+//数据转换
 	aData = parse_mvisCorrplotData(mvisCorrplotData["matrixData"])
 	console.log(aData)
 
@@ -220,15 +225,20 @@ HTMLWidgets.widget({
 			.attr("class", function(d,i){ a1 = Math.floor(i/n); a2 = i%n; return("cell cell_Y_"+a1+" cell_X_"+a2);})
 			.attr("class", function(d,i){ a1 = Math.floor(i/n); a2 = i%n; return("cell cell_Y_"+a1+" cell_X_"+a2);})
 		*/
+// outArray[i*n+j] = new Array(r, cx, cy, color, a[i][j], cellSize*j+lineStart, cellSize*i+lineStart )
+
 			.attr("r", function(d){return d[0];})
 			.attr("fill", function(d){return d[3];})
+      //第几行，Math.floor(i/n)
 			.attr("cx", function(d,i){ return (cellSize*( newSeq[Math.floor(i/n)]-0.5) + lineStart);})
-			.attr("cy", function(d,i){return (cellSize*( newSeq[i%n]-0.5) + lineStart);})
+      //第几列，i%n,取余数
+      .attr("cy", function(d,i){return (cellSize*( newSeq[i%n]-0.5) + lineStart);})
 			.attr("class", function(d,i){ return("cell cell_Y_"+ (newSeq[i%n] -1) ) +" cell_X_"+ (newSeq[Math.floor(i/n)] -1);})
 
 
-
-	}else if (method=="ellipse"){
+/* 椭圆这一段挺难看的，需要想个办法修改一下 */
+}
+else if (method=="ellipse"){//
 		var cells = svg.selectAll(".cells").data(aData)
 				.enter()
 				.append("ellipse")
@@ -265,25 +275,28 @@ HTMLWidgets.widget({
 				*/
 				.attr("fill", function(d){return d[3];})
 				.attr("width", function(d){return 2*d[0]})
-				.attr("height", function(d){return 2*d[0]})
+				.attr("height", function(d){return 2*d[0]})//这里可以增添一个比例尺
 				.attr("x", function(d,i){return (cellSize*( newSeq[Math.floor(i/n)]-0.5) + lineStart) - d[0];})
 				.attr("y", function(d,i){ return (cellSize*( newSeq[i%n]-0.5) + lineStart) - d[0];})
 				.attr("class", function(d,i){ return("cell cell_Y_"+ (newSeq[i%n] -1) ) +" cell_X_"+ (newSeq[Math.floor(i/n)] -1);})
 
-				}
+      }
+
 	/*	info = "x:"+ 0+";y:"+0
 	var infoLabel = svg.selectAll(".info").data([1]).enter().append("text")
 			.attr("x", 20).attr("y",20)
 			.text(info).attr("class","info")
 	*/
-	console.log(newSeq)
+	console.log({newSeq:newSeq})
+  //在cell上添加数字
 			var numLabel = svg.selectAll(".numLabelNormal").data(aData).enter().append("text")
 				.attr("x", function(d,i){ return (cellSize*( newSeq[Math.floor(i/n)]-0.5) + lineStart);})
 				.attr("y", function(d,i){ return (cellSize*( newSeq[i%n]-0.5) + lineStart-5);})
 				.attr("class", function(d,i){ return("numLabelNormal numLabel_Y_"+ (newSeq[i%n] -1) ) +" numLabel_X_"+ (newSeq[Math.floor(i/n)] -1);})
-				.text(function(d){return(parseFloat(d[4]).toFixed(3));})
+				.text(function(d){return(parseFloat(d[4]).toFixed(3));})//确定保留几位小数
 				.attr("fill", function(d){ return (parseFloat(d[4])>middleValue) ? "#ffa500":"green"})
-				.attr("visibility", function(d, i) {
+//使用visibility属性来确定是否显示数字
+        .attr("visibility", function(d, i) {
 					a1 = newSeq[Math.floor(i/n)];
 					a2 = newSeq[i%n];
 					if (numShow){
@@ -298,7 +311,7 @@ HTMLWidgets.widget({
 						}
 					})
 				.attr("font-size","8px")
-
+//定义cell的每个矩形
 	var rect = svg.selectAll(".rect").data(aData).enter().append("rect")
 				.attr("x", function(d,i){return  d[5]})
 				.attr("y", function(d,i){return  d[6]})
@@ -311,6 +324,7 @@ HTMLWidgets.widget({
 
 
 	// Fixed
+//Y 坐标
 	var axisLabel_Y = svg.selectAll(".axis_YNormal").data(mvisCorrplotData["colNames"]).enter().append("text")
 			.attr("class", function(d,i){return "axis_YNormal text_Y_" + (newSeq[i]-1)})
 			.attr("x", lineStart-3)
@@ -319,16 +333,25 @@ HTMLWidgets.widget({
 			.attr("font-size","15px")
 
 	//Fixed
+  //x坐标
 	var axisLabel_X = svg.selectAll(".axis_XNormal").data(mvisCorrplotData["colNames"]).enter().append("text")
 		.attr("class", function(d,i){return "axis_XNormal text_X_" + (newSeq[i]-1) })
 		.attr("x", lineStart+3)
 		.attr("y", function(d,i){return (newSeq[i]-0.5)*cellSize+lineStart+5;})
 		.attr("transform", "rotate(-90,"+lineStart+","+lineStart+")")
+    //90度在坐标轴上方
 		.text(function(d){return d;})
-
+//	vLineArray[i] =
+// new Array(cellSize*i + lineStart, lineStart, cellSize*i + lineStart, lineEnd)
+//  hLineArray[i] =
+//new Array(lineStart, cellSize*i + lineStart, lineEnd, cellSize*i + lineStart)
+/*  这一段是实现矩阵的网格生成和动态 */
+console.log({"vL":vLineArray});
+console.log({"vL1":vLineArray[0][0]});
 	var yLines = svg.selectAll(".yLines").data(vLineArray).enter().append("line")
 				.attr("x1", function(d,i){return d[0];})
 				.attr("y1", function(d,i){return d[1];})
+//起点和终点相同，但是还是line，可以使用动态来实现，线的展开
 				.attr("x2", function(d,i){return d[0];})
 				.attr("y2", function(d,i){return d[1];})
 				.attr("stroke", "gray").attr("stroke-width",1)
@@ -352,13 +375,13 @@ HTMLWidgets.widget({
 				.attr("x2", function(d,i){return d[2];})
 				.attr("y2", function(d,i){return d[3];})
 				.attr("stroke", "gray").attr("stroke-width",1)
-
+/* */
 
 	gradientColor = [maxCol, middleCol, minCol]
-
+/*画出legend*/
 	var drawLegend = function(){
 			var legend = svg.selectAll("legend")
-					.data([1]).enter()
+					.data([1]).enter()//经常使用data([1])来添加一个元素？？？
 					.append("g")
 			var legendWidth = 30;
 			var rectGradient = legend.selectAll("rectgradient")
@@ -369,12 +392,12 @@ HTMLWidgets.widget({
 					.attr("y", lineStart)
 					.attr("width", legendWidth)
 					.attr("height", cellSize*n)
-					.attr("fill","url(#grad2)")
+					.attr("fill","url(#grad2)")//url id=grad2
 
 
 
 			var legendLabelDefine =  function(maxValue, minValue){
-				nOfLabel = 11;
+				nOfLabel = 11;//label上显示11个数字
 				heightStep = cellSize*n/(nOfLabel-1)
 				numStep = (maxValue-minValue)/(nOfLabel-1)
 				var returnArray = new Array()
@@ -392,7 +415,8 @@ HTMLWidgets.widget({
 					.enter()
 					.append("g")
 
-			var legendLine = legendGroup.selectAll(".legendLine")
+			var legendLine = legendGroup.selectAll(".legendLine")//画label伸出来的那一段
+      //刻度
 					.data(legendData)
 					.enter()
 					.append("line")
@@ -413,14 +437,16 @@ HTMLWidgets.widget({
 					.style("dominant-baseline","central")
 		}
 	drawLegend();
-
+/*    */
 
 	var overCell =  function(d,i){
-			var y = Math.floor(i/n)
-				x = i%n
-
+    // 原来是这样实现的！！！
+			var y = Math.floor(i/n)//取列
+				x = i%n//取行
+//鼠标放在元素上面，元素会变大
 			if (method=="circle"){
 				svg.selectAll(".cell_Y_"+y).transition().duration(500).delay(200)
+        //一个元素可以使用多个class？，并使用空格ge隔开隔开？
 					.attr("r", function(d){return d[0]*1.1;})
 
 				svg.selectAll(".cell_X_"+x).transition().duration(500).delay(200)
@@ -446,16 +472,17 @@ HTMLWidgets.widget({
 			//.text(info)
 
 
-
+console.log({"newseq":newSeq})
 			svg.selectAll(".rect_X_"+x).transition().duration(100).delay(200)
-				.style("opacity", 0.2)
+				.style("opacity", 0.2)//透明度
 			svg.selectAll(".rect_Y_"+y).transition().duration(100).delay(200)
 				.style("opacity", 0.2)
 				svg.selectAll(".numLabelNormal").data(aData).enter().append("text")
+        //向元素中添加相关性值
 
-
+// 选择让选中的元素的该列和该行的num进行显示
 			svg.selectAll(".numLabel_Y_"+y).transition().duration(500).delay(200)
-				.attr("visibility", function(d,i){
+				.attr("visibility", function(d,i){// 利用遍历实现 full 上下三角的不同显示方法
 					if (diagShow=="diagLower"){
 						return  newSeq[i] > y+1 ?"hidden":"visible";
 					}else if(diagShow=="diagUpper"){
@@ -482,7 +509,7 @@ HTMLWidgets.widget({
 				.attr("font-weight","bold")
 				.attr("fill","#f00")
 
-
+// x轴的坐标名会变化。没有使用旋转实现，利用duration自动实现
 			if (diagShow == "diagLower"){
 				svg.select(".text_X_"+x).transition().duration(200).delay(200)
 					.attr("x", (x+0.5)*cellSize+lineStart-5)
@@ -603,15 +630,18 @@ HTMLWidgets.widget({
 
 	}
 
-
-	rect.on("mouseover.tooltip",overCell)
+//实现鼠标 on
+	rect.on("mouseover",overCell)
+//鼠标离开，恢复
 	rect.on("mouseout.tooltip",outCell)
 
+/*按钮*/
 
 	$('button[id=numShow]').click(
 		function(){
 			if ($(this).val()=="show"){
 				numShow = true;
+        //点完之后，按钮就变味hidden了
 				$("#numShow").text("Hidden")
 				$("#numShow").val("hidden")
 				svg.selectAll(".numLabelNormal")
@@ -642,7 +672,7 @@ HTMLWidgets.widget({
 	$('#legendDiv').on('change', function() {
 		//console.log( $('#diagDiv input:radio:checked').attr("id"));
 
-		d3.selectAll(".cell").remove()
+		d3.selectAll(".cell").remove()//这句是很关键的。。。可以使用无顾虑的enter()
 
 		//method = "diag" + $('#diagDiv input:radio:checked').attr("id");
 		method = $('#legendDiv input:radio:checked').attr("id");
@@ -742,9 +772,9 @@ HTMLWidgets.widget({
 	});
 
 	function diagInit(diagShow){
-
+// diag 显示
 		var t = svg.transition().duration(500);
-
+//cell 元素上下三角显示
 		var cells = t.selectAll(".cell")
 				cells.attr("visibility", function(d, i) {
 					a1 = newSeq[Math.floor(i/n)];
@@ -755,7 +785,7 @@ HTMLWidgets.widget({
 						return  a1<a2?"hidden":"visible";
 					}else if(diagShow=="diagFull"){
 						return "visible";}})
-
+// rect 显示
 			var rects = t.selectAll(".rectCellNormal")
 				rects.attr("visibility", function(d, i) {
 					a1 = Math.floor(i/n);
@@ -767,7 +797,7 @@ HTMLWidgets.widget({
 						return  a1>a2?"hidden":"visible";
 					}else if(diagShow=="diagFull"){
 						return "visible";}})
-
+// 相应的numlabels
 			var numLabel = t.selectAll(".numLabelNormal")
 				numLabel.attr("visibility", function(d, i) {
 					a1 = newSeq[Math.floor(i/n)];
