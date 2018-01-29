@@ -28,7 +28,6 @@ HTMLWidgets.widget({
 //x:包括data和settings
 //
   renderValue: function(el, x, wrapDiv) {
-     console.log({"x":ssx})
 	 wrapDiv.selectAll("div").remove();
 	 wrapDiv.selectAll("svg").remove();
 
@@ -49,15 +48,29 @@ HTMLWidgets.widget({
 	//console.log(svg.attr("id"))
 	//console.log(el)
 	//console.log(x)
-  
+
     //instance.setOption(x, true);
 	//instance.setTheme(eval(x.theme + "Theme"));
 	mvisCorrplotData = x['data']
 
 	//circles.on("mouseover.tooltip",overCell)
 	var w = 950, h = 900, n = mvisCorrplotData["matrixLength"];
+  /*
+  outList <- list(
+				matrixLength = ncol(corr),
+				color = color,
+				colNames = colNames,
+				matrixData = corr,
+				orderList = orderList
+		)
+    x <- list(
+  data = outList,
+  settings = settings
+)
+  */
   //这个data中应该是从R的函数中获取的；
-		lineStart = 100;
+
+    lineStart = 100;
 		lineEnd = 850;
 		cellSize = (lineEnd - lineStart)/n;//cell的个数
 		hLineArray = new Array(n+1);//水平线
@@ -78,12 +91,13 @@ HTMLWidgets.widget({
 		newSeq = mvisCorrplotData["orderList"]["original"]
 
 //从html中选取
+//使用iquery ui
 		$( "#legendDiv" ).buttonset();
 		$( "#diagDiv" ).buttonset();
 		$( "#numShow" ).button();
 
 		$("bottonBox").css("margin-left")
-
+// 颜色进制转换  使用prototype给string添加方法
 		var reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;//正则表达式
 		String.prototype.colorHex = function(){
 			var that = this;
@@ -138,20 +152,18 @@ HTMLWidgets.widget({
 		};
 
 		var parse_mvisCorrplotData = function(a){//该函数计算矩阵可视化每个cell的属性值
-			if (a.length==1){
+			if (a.length==1){//只有一个cell时
 				outArray = new Array(1)
-          //计算precent，决定后面变量的大小
-          //
 				percent = (a[0] - middleValue)/(maxValue - middleValue);
 				r = (percent*(maxR-minR)+minR)/2;
 				cx = cellSize*(0.5) + lineStart;//
 				cy = cellSize*(0.5) + lineStart;//
-				color = colorSelector(a[0])//一个自定义函数
+				color = colorSelector(a[0])//
 				outArray[0] = new Array(r, cx, cy, color, a[0], cellSize*0+lineStart, cellSize*0+lineStart )
 				return outArray
 			}else{
-				outArray = new Array(n*n)
-        //矩阵，开始遍历。
+				outArray = new Array(n*n)//大于1个时
+        //矩阵，开始遍历。    可尝试使用矩阵的形式来表达
 				for(var i = 0; i < n; i++){
 					for(var j=0; j < n; j++){
 						if (a[i][j] > middleValue) percent = (a[i][j] - middleValue)/(maxValue - middleValue);
@@ -160,6 +172,7 @@ HTMLWidgets.widget({
 						cx = cellSize*(j+0.5) + lineStart;
 						cy = cellSize*(i+0.5) + lineStart;
 						color = colorSelector(a[i][j])
+            //                          cell的半径，cell位置，颜色，原始数据，列位置，行位置
 						outArray[i*n+j] = new Array(r, cx, cy, color, a[i][j], cellSize*j+lineStart, cellSize*i+lineStart )
 					}
 				}
@@ -167,7 +180,7 @@ HTMLWidgets.widget({
 			}
 		}
 /*           */
-//该函数是一个自定函数，用于产生颜色
+//按照corr的产生颜色
 		var colorSelector = function(v){
 
 			var returnCol = new Array(3);
@@ -195,7 +208,7 @@ HTMLWidgets.widget({
 		}
 
 /* ################ */
-//
+//水平线和垂直线的定义，计算
 		for (i=0; i<n+1; i++){
 			vLineArray[i] =  new Array(cellSize*i + lineStart, lineStart, cellSize*i + lineStart, lineEnd)
 			hLineArray[i] = new Array(lineStart, cellSize*i + lineStart, lineEnd, cellSize*i + lineStart)
@@ -205,8 +218,6 @@ HTMLWidgets.widget({
 		$( "#legend" ).buttonset();
 		$( "#diag" ).buttonset();
 //
-	//circles.on("mouseout.tooltip",outCell)
-
 function init_corrplot( method){
 
 
@@ -236,7 +247,7 @@ function init_corrplot( method){
 			.attr("class", function(d,i){ return("cell cell_Y_"+ (newSeq[i%n] -1) ) +" cell_X_"+ (newSeq[Math.floor(i/n)] -1);})
 
 
-/* 椭圆这一段挺难看的，需要想个办法修改一下 */
+/* 椭圆挺难看的，需要想个办法修改一下 */
 }
 else if (method=="ellipse"){//
 		var cells = svg.selectAll(".cells").data(aData)
@@ -279,7 +290,6 @@ else if (method=="ellipse"){//
 				.attr("x", function(d,i){return (cellSize*( newSeq[Math.floor(i/n)]-0.5) + lineStart) - d[0];})
 				.attr("y", function(d,i){ return (cellSize*( newSeq[i%n]-0.5) + lineStart) - d[0];})
 				.attr("class", function(d,i){ return("cell cell_Y_"+ (newSeq[i%n] -1) ) +" cell_X_"+ (newSeq[Math.floor(i/n)] -1);})
-
       }
 
 	/*	info = "x:"+ 0+";y:"+0
@@ -287,8 +297,9 @@ else if (method=="ellipse"){//
 			.attr("x", 20).attr("y",20)
 			.text(info).attr("class","info")
 	*/
-	console.log({newSeq:newSeq})
+//	console.log({newSeq:newSeq})
   //在cell上添加数字
+
 			var numLabel = svg.selectAll(".numLabelNormal").data(aData).enter().append("text")
 				.attr("x", function(d,i){ return (cellSize*( newSeq[Math.floor(i/n)]-0.5) + lineStart);})
 				.attr("y", function(d,i){ return (cellSize*( newSeq[i%n]-0.5) + lineStart-5);})
@@ -346,8 +357,8 @@ else if (method=="ellipse"){//
 //  hLineArray[i] =
 //new Array(lineStart, cellSize*i + lineStart, lineEnd, cellSize*i + lineStart)
 /*  这一段是实现矩阵的网格生成和动态 */
-console.log({"vL":vLineArray});
-console.log({"vL1":vLineArray[0][0]});
+//console.log({"vL":vLineArray});
+//console.log({"vL1":vLineArray[0][0]});
 	var yLines = svg.selectAll(".yLines").data(vLineArray).enter().append("line")
 				.attr("x1", function(d,i){return d[0];})
 				.attr("y1", function(d,i){return d[1];})
@@ -377,7 +388,7 @@ console.log({"vL1":vLineArray[0][0]});
 				.attr("stroke", "gray").attr("stroke-width",1)
 /* */
 
-	gradientColor = [maxCol, middleCol, minCol]
+	gradientColor = [maxCol, middleCol, minCol];
 /*画出legend*/
 	var drawLegend = function(){
 			var legend = svg.selectAll("legend")
@@ -395,7 +406,7 @@ console.log({"vL1":vLineArray[0][0]});
 					.attr("fill","url(#grad2)")//url id=grad2
 
 
-
+//
 			var legendLabelDefine =  function(maxValue, minValue){
 				nOfLabel = 11;//label上显示11个数字
 				heightStep = cellSize*n/(nOfLabel-1)
@@ -407,6 +418,7 @@ console.log({"vL1":vLineArray[0][0]});
 
 				return returnArray;
 			}
+
 
 
 			var legendData = legendLabelDefine(maxValue, minValue)
@@ -631,17 +643,17 @@ console.log({"newseq":newSeq})
 	}
 
 //实现鼠标 on
-	rect.on("mouseover",overCell)
+	rect.on("mouseover.tooltip",overCell)
 //鼠标离开，恢复
 	rect.on("mouseout.tooltip",outCell)
 
 /*按钮*/
-
+//显示数字按钮
 	$('button[id=numShow]').click(
 		function(){
 			if ($(this).val()=="show"){
 				numShow = true;
-        //点完之后，按钮就变味hidden了
+        //点完之后，按钮就变回hidden了
 				$("#numShow").text("Hidden")
 				$("#numShow").val("hidden")
 				svg.selectAll(".numLabelNormal")
@@ -668,7 +680,7 @@ console.log({"newseq":newSeq})
 			}
 		}
 	)
-
+// legend
 	$('#legendDiv').on('change', function() {
 		//console.log( $('#diagDiv input:radio:checked').attr("id"));
 
@@ -819,7 +831,7 @@ console.log({"newseq":newSeq})
 						.attr("x", lineStart-3)
 				var axisLabel_X = t.selectAll(".axis_XNormal")
 						.attr("x", function(d,i){return(lineStart+3 - (newSeq[i]-1)*cellSize)})
-
+//对lines的
 				t.selectAll(".yLines")
 					.attr("x1", function(d,i){return d[0];})
 					.attr("y1", function(d,i){if (i>0)return ((i-1)*cellSize+lineStart); else return d[0];})
@@ -996,7 +1008,7 @@ console.log({"newseq":newSeq})
 	}
 
 
-	d3.select("#orderSelect").on("change", function() {
+	$("#orderSelect").on("change", function() {
 		console.log(1233332)
 		newSeq = mvisCorrplotData["orderList"][this.value]; changeSeq(newSeq , method=method)
 
@@ -1010,9 +1022,13 @@ console.log({"newseq":newSeq})
 	});
 
 
+  $(function() {
+    $(".col-md-2").draggable();
+  })
 		//var rects = svg.selectAll(".rect")
-
 	}
+
+
 	init_corrplot(method="circle")
 
   },
