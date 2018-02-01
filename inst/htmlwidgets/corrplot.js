@@ -484,7 +484,7 @@ else if (method=="ellipse"){//
 			//.text(info)
 
 
-console.log({"newseq":newSeq})
+//onsole.log({"newseq":newSeq})
 			svg.selectAll(".rect_X_"+x).transition().duration(100).delay(200)
 				.style("opacity", 0.2)//透明度
 			svg.selectAll(".rect_Y_"+y).transition().duration(100).delay(200)
@@ -1006,7 +1006,115 @@ console.log({"newseq":newSeq})
 
 
 	}
+/*add 2018-1-30 实现cell拖拽 */
+//function DragExchange (d,i){
 
+
+//var textDrag(d,i){
+ var t = d3.behavior.drag()
+.origin(function(d,i){
+return {x:d3.select(this).attr("x"),
+y:d3.select(this).attr("y")}})
+.on("drag",function(d,i){
+// text_Y
+d3.select(this)
+.attr("x",d.x=d3.event.x)
+.attr("y",d.y=d3.event.y)
+//var y = Math.floor(i/n)//
+//var x = i%n//
+//console.log({"i":i,"y":y,"x":x})
+var rect_y = d3.selectAll(".rect_Y_"+i)
+  .style({"opacity":0.2})
+//console.log(".rect_Y_"+i)
+
+
+//console.log(rect_y.size())
+var textY = d3.selectAll(".axis_YNormal")
+.on("mouseover",function(d,i){
+d3.select(this).style({"opacity":0.2})
+})
+.on("mouseout",function(d,i){
+d3.select(this).style({"opacity":1})
+  })
+})
+.on("dragend",function(d,i){
+var rect_y = d3.selectAll(".rect_Y_"+i)
+.style({"opacity":0,"fill":"grey"})
+})
+
+//cells
+
+
+
+//rect_y.attr("")
+
+
+
+// 增添坐标动画
+d3.selectAll(".axis_YNormal")
+.on("mouseover",function(d,i){
+d3.select(this).attr("fill","steelblue").attr("opacity",0.8)
+.attr("font-size",function(d){
+//  console.log(d3.select(this).attr("font-size"))
+return "20px"})
+
+//var y = Math.floor(i/n)//取列
+//var x = i%n//取行
+
+
+
+
+})
+.on("mouseout",function(d,i){
+d3.select(this).transition().duration(500)
+.attr("fill","black")
+.attr("opacity",1)
+.attr("font-size",15)
+})
+
+
+//
+d3.selectAll(".axis_XNormal")
+.on("mouseover",function(d,i){
+d3.select(this).attr("fill","steelblue").attr("opacity",0.8)
+.attr("font-size",function(d,i){
+//  console.log(d3.select(this).attr("font-size"))
+return "20px"})
+//.attr("x", (newSeq[i]+0.5)*cellSize+lineStart-5)
+//.attr("y", lineStart-15)
+})
+.on("mouseout",function(d,i){
+d3.select(this).transition().duration(500)
+.attr("fill","black")
+.attr("opacity",1)
+.attr("font-size",15)
+//.attr("y", lineStart+3)
+//.attr("x", function(d,i){return (newSeq[i]-0.5)*cellSize+lineStart+5;})
+//.attr("transform", "rotate(-90,"+lineStart+","+lineStart+")")
+
+//.attr("transform","rotate(-90,"+lineStart+","+lineStart+")")
+})
+
+
+
+/*
+function  textExchange (t){
+if(t.on("mouseover").size())
+
+}
+*/
+
+var tem = d3.selectAll(".axis_YNormal").call(t);
+
+//tem.on("mouseover",function(){
+//  console.log({"size":d3.event.size})
+//})
+
+//};
+
+
+
+/**/
 
 	$("#orderSelect").on("change", function() {
 		console.log(1233332)
