@@ -4,7 +4,7 @@ HTMLWidgets.widget({
 
   initialize: function(el, width, height) {
 
-     console.log("init")
+//     console.log("init")
   //定义div元素
 	 var wrapDiv = d3.select(el)
 		.append("div")
@@ -21,6 +21,7 @@ HTMLWidgets.widget({
 	var bottonDiv = d3.select(el)
 		.append("div")
 		.html(buttonHTML)
+  //  console.log(buttonHTML)
     return wrapDiv;
   },
 /*               */
@@ -89,6 +90,9 @@ HTMLWidgets.widget({
 		middleCol = mvisCorrplotData["color"][1];
 		minCol = mvisCorrplotData["color"][2];
 		newSeq = mvisCorrplotData["orderList"]["original"]
+    colNames = mvisCorrplotData["colNames"]
+
+    nowSeq = new Array() ;
 
 //从html中选取
 //使用iquery ui
@@ -223,9 +227,12 @@ function init_corrplot( method){
 
 //数据转换
 	aData = parse_mvisCorrplotData(mvisCorrplotData["matrixData"])
-	console.log(aData)
+	//console.log(aData)
 
 	if (method=="circle"){
+
+       console.log(newSeq)
+
 		var cells = svg.selectAll(".cells").data(aData)
 			.enter()
 			.append("circle")
@@ -271,7 +278,6 @@ else if (method=="ellipse"){//
 					if (d[4]>0) return "rotate( -45," + (cellSize*(newSeq[Math.floor(i/n)] - 0.5)  + lineStart) +","+(cellSize*( newSeq[i%n] - 0.5) + lineStart)+")";
 					else return "rotate( 45," + (cellSize*(newSeq[Math.floor(i/n)] - 0.5)  + lineStart) +","+(cellSize*( newSeq[i%n] - 0.5) + lineStart)+")"})
 				.attr("fill", function(d){return d[3];})
-
 
 	}else if (method == "square"){
 		var cells = svg.selectAll(".cells").data(aData)
@@ -688,7 +694,7 @@ else if (method=="ellipse"){//
 
 		//method = "diag" + $('#diagDiv input:radio:checked').attr("id");
 		method = $('#legendDiv input:radio:checked').attr("id");
-		console.log( $('#legendDiv input:radio:checked').attr("id"));
+		//console.log( $('#legendDiv input:radio:checked').attr("id"));
 
 	if (method=="circle"){
 
@@ -1045,7 +1051,6 @@ var rect_y = d3.selectAll(".rect_Y_"+i)
 //cells
 
 
-
 //rect_y.attr("")
 
 
@@ -1117,7 +1122,7 @@ var tem = d3.selectAll(".axis_YNormal").call(t);
 /**/
 
 	$("#orderSelect").on("change", function() {
-		console.log(1233332)
+		//console.log(1233332)
 		newSeq = mvisCorrplotData["orderList"][this.value]; changeSeq(newSeq , method=method)
 
 	});
@@ -1129,14 +1134,116 @@ var tem = d3.selectAll(".axis_YNormal").call(t);
 			diagInit(diagShow)
 	});
 
-
+// 按钮可以移动
   $(function() {
     $(".col-md-2").draggable();
   })
+
+//  增加一个sortable板
+//console.log({colNames:x["data"]["colNames"]})
+
+//利用sortable bars来实现变换
+
+//
+
+
+
+
+
+console.log({"newSeq":newSeq})
+
+//console.log(getSeq())
+
+//console.log(getSeq()==newSeq)
+
+//console.log($(".sortBars").$("li:first").next().text())
+//[0,1,2]  [1,0,2]  [1,0,2]
+//console.log( {"zindex":$(".sortBars").sortable("option","zIndex")});
+
+
+$("#barsSeq").on("click", function() {
+  //console.log(1233332)
+
+//  console.log(barSeq)
+//  console.log(newSeq)
+//newSeq = barSeq;
+
+function  getSeq(){
+
+var barSeq = new Array();
+//var nowSeq = new Array();
+
+for(var i=0;i<colNames.length;i++){
+
+/*for(var j=0;j<colNames.length;j++){
+nowSeq[j] = colNames[newSeq[j]-1]
+
+}*/
+//console.log(nowSeq)
+
+barSeq[i] =   colNames.indexOf($(".sortBars li:eq("+i+")").text())+1;
+
+}
+//console.log(barSeq)
+return barSeq;
+}
+newSeq = getSeq();
+  changeSeq( newSeq,method=method);//这句为什么不行
+console.log({"newSeq":newSeq,"getSeq":getSeq()})
+
+//console.log(barSeq.indexOf("mpg"))
+});
+
+//
+
+
+
+/**/
+
 		//var rects = svg.selectAll(".rect")
 	}
+//end init
+
+function addBars(){
+
+  function nameToHtml(){
+
+  var nameBars = new String();
+  for(var i=0;i<colNames.length;i++){
 
 
+    for(var j=0;j<colNames.length;j++){
+    nowSeq[j] = colNames[newSeq[j]-1]
+
+    }
+
+  var temBar = "<div><li>"+nowSeq[i]+"</li></div>";
+  nameBars = nameBars+temBar;
+
+  }
+
+  return nameBars;
+  }
+
+  var nameBars = nameToHtml();
+  console.log(nameBars)
+
+
+  d3.select("#bottonBox").append("div").attr("class","sortBars")
+  .html(nameBars)
+    var barsBotton = '<button type="button" id="barsSeq">barsSeq</button>';
+  d3.select("#bottonBox").append("div").html(barsBotton)
+
+  $(".sortBars").sortable();
+}
+  addBars()
+/**/
+
+
+
+
+
+/**/
 	init_corrplot(method="circle")
 
   },
