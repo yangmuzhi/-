@@ -9,9 +9,11 @@ HTMLWidgets.widget({
 	 var wrapDiv = d3.select(el)
 		.append("div")
 		.attr("id", "content-wrapper")
-		.attr("width", "800px")//这里可不可以修改
+		//.attr("width", "10px")//这里可不可以修改
 //定义按钮
-	var buttonHTML = '<div id="bottonBox" class="row" style="margin-top:-200px; width:900px"> <div class="col-md-2"> <p class="buttonLabel"> Order:</p>'+
+	var buttonHTML = '<div id="bottonBox" class="row" style="margin-top:-200px; width:900px"> <div class="col-md-2">' +
+  '<div id = "svgSizeSlider"></div> <input type="submit" id="svgSizeSub"/>'+
+  '<p class="buttonLabel"> Order:</p>'+
 		'<select id="orderSelect" style="width:80px"> <option value="original">original</option> <option value="AOE">AOE</option><option value="FPC">FPC</option>			<option value="hclust">hclust</option>			<option value="name">name</option>		</select>		</div>'+
 		'<div class="col-md-4" >	<p class="buttonLabel"> DiagShow:</p>		<div id="diagDiv" class="btn-group" data-toggle="buttons">			<label class="btn btn-info">				<input type="radio" name="options" id="Upper" autocomplete="off"  value="Upper" > Upper			</label>			<label class="btn btn-info">				<input type="radio" name="options" id="Lower" autocomplete="off" value="Lower"> Lower			</label>			<label class="btn btn-info active">				<input type="radio" name="options" id="Full" autocomplete="off" value="Full" checked> Full			</label>		</div></div>'+
 		'<div class="col-md-4" >		<p class="buttonLabel"> Legend:</p>			<div id="legendDiv" class="btn-group" data-toggle="buttons" style="position: relative">				<label class="btn btn-info active">					<input type="radio" name="legend" autocomplete="off" checked id="circle" value="Circle"> Circle				</label>				<label class="btn btn-info">					<input type="radio" name="legend" autocomplete="off" id="square"  value="Square"> Square				</label>				<label class="btn btn-info">					<input type="radio" name="legend" autocomplete="off" id="ellipse" value="Ellipse"> Ellipse				</label>			</div>	</div>'+
@@ -32,7 +34,7 @@ HTMLWidgets.widget({
 	 wrapDiv.selectAll("div").remove();
 	 wrapDiv.selectAll("svg").remove();
 
-	 var plotDiv = wrapDiv.append("div")
+	 plotDiv = wrapDiv.append("div")
 		.attr("class", "corrplot")
 		.attr("id", "corrplot-1")
 
@@ -41,10 +43,31 @@ HTMLWidgets.widget({
 	wrapDiv.append("svg")
 		.html(svgHTML)
 //添加svg元素
+w = x['size'][0]
+h = x["size"][1]
 
-	var svg = plotDiv.append("svg")
-      .attr("width", "950px")//这里可以修改
-      .attr("height", "900px")//
+//console.log($("#svgSizeSlider").value)
+//$("#svgSizeSlider").value
+
+mvisCorrplotData = x['data']
+
+
+var  n = mvisCorrplotData["matrixLength"];
+/*定义比例尺   2018-2-7*/
+//这里可以这样设想，可以设置一些滑轮选项来调整 svg的大小，内部元素的一些细节大小。
+//比例主要调节的是文字 坐标和label的大小。cell rect不需要。
+
+
+//var svgScale = d3.scale.linear().domain([]).range([]);
+
+/**/
+
+
+
+//console.log(x.size)
+	 svg = plotDiv.append("svg")
+      .attr("width", w)//这里可以修改
+      .attr("height", h)//
 	  .attr("id", "plotSVG");
 	//console.log(svg.attr("id"))
 	//console.log(el)
@@ -52,10 +75,7 @@ HTMLWidgets.widget({
 
     //instance.setOption(x, true);
 	//instance.setTheme(eval(x.theme + "Theme"));
-	mvisCorrplotData = x['data']
 
-	//circles.on("mouseover.tooltip",overCell)
-	var w = 950, h = 900, n = mvisCorrplotData["matrixLength"];
   /*
   outList <- list(
 				matrixLength = ncol(corr),
@@ -70,9 +90,9 @@ HTMLWidgets.widget({
 )
   */
   //这个data中应该是从R的函数中获取的；
-
-    lineStart = 100;
-		lineEnd = 850;
+//以0.1作为空白比例
+    lineStart = 0.1*w;
+		lineEnd = 0.85*w;
 		cellSize = (lineEnd - lineStart)/n;//cell的个数
 		hLineArray = new Array(n+1);//水平线
 		vLineArray = new Array(n+1);//垂直线
@@ -85,6 +105,7 @@ HTMLWidgets.widget({
 		maxValue = 1;
 		middleValue = 0;
 		minValue = -1;
+numLabelSize = 0.01*w
 
 		maxCol = mvisCorrplotData["color"][0];
 		middleCol = mvisCorrplotData["color"][1];
@@ -213,16 +234,23 @@ HTMLWidgets.widget({
 
 /* ################ */
 //水平线和垂直线的定义，计算
-		for (i=0; i<n+1; i++){
-			vLineArray[i] =  new Array(cellSize*i + lineStart, lineStart, cellSize*i + lineStart, lineEnd)
-			hLineArray[i] = new Array(lineStart, cellSize*i + lineStart, lineEnd, cellSize*i + lineStart)
-		}
-
 
 		$( "#legend" ).buttonset();
 		$( "#diag" ).buttonset();
 //
 function init_corrplot( method){
+
+lineStart = 0.1*w;
+lineEnd = 0.85*w;
+cellSize = (lineEnd - lineStart)/n;//cell的个数
+maxR = 0.9 * cellSize;//应该是定义圈的最大最小值
+minR = 0.1 * cellSize;
+
+
+		for (i=0; i<n+1; i++){
+			vLineArray[i] =  new Array(cellSize*i + lineStart, lineStart, cellSize*i + lineStart, lineEnd)
+			hLineArray[i] = new Array(lineStart, cellSize*i + lineStart, lineEnd, cellSize*i + lineStart)
+		}
 
 
 //数据转换
@@ -292,7 +320,7 @@ else if (method=="ellipse"){//
 				*/
 				.attr("fill", function(d){return d[3];})
 				.attr("width", function(d){return 2*d[0]})
-				.attr("height", function(d){return 2*d[0]})//这里可以增添一个比例尺
+				.attr("height", function(d){return 2*d[0]})//
 				.attr("x", function(d,i){return (cellSize*( newSeq[Math.floor(i/n)]-0.5) + lineStart) - d[0];})
 				.attr("y", function(d,i){ return (cellSize*( newSeq[i%n]-0.5) + lineStart) - d[0];})
 				.attr("class", function(d,i){ return("cell cell_Y_"+ (newSeq[i%n] -1) ) +" cell_X_"+ (newSeq[Math.floor(i/n)] -1);})
@@ -308,7 +336,7 @@ else if (method=="ellipse"){//
 
 			var numLabel = svg.selectAll(".numLabelNormal").data(aData).enter().append("text")
 				.attr("x", function(d,i){ return (cellSize*( newSeq[Math.floor(i/n)]-0.5) + lineStart);})
-				.attr("y", function(d,i){ return (cellSize*( newSeq[i%n]-0.5) + lineStart-5);})
+				.attr("y", function(d,i){ return (cellSize*( newSeq[i%n]-0.45) + lineStart);})// 这里完全按照效果，可能需要一点靠谱的解释
 				.attr("class", function(d,i){ return("numLabelNormal numLabel_Y_"+ (newSeq[i%n] -1) ) +" numLabel_X_"+ (newSeq[Math.floor(i/n)] -1);})
 				.text(function(d){return(parseFloat(d[4]).toFixed(3));})//确定保留几位小数
 				.attr("fill", function(d){ return (parseFloat(d[4])>middleValue) ? "#ffa500":"green"})
@@ -327,7 +355,7 @@ else if (method=="ellipse"){//
 						return "hidden";
 						}
 					})
-				.attr("font-size","8px")
+				.attr("font-size",numLabelSize)
 //定义cell的每个矩形
 	var rect = svg.selectAll(".rect").data(aData).enter().append("rect")
 				.attr("x", function(d,i){return  d[5]})
@@ -347,8 +375,8 @@ else if (method=="ellipse"){//
 			.attr("x", lineStart-3)
 			.attr("y", function(d,i){return (newSeq[i]-0.5)*cellSize+lineStart+5;})
 			.text(function(d){return d;})
-			.attr("font-size","15px")
-console.log("add axis")
+			.attr("font-size",numLabelSize*2)
+//console.log("add axis")
 	//Fixed
   //x坐标
 	var axisLabel_X = svg.selectAll(".axis_XNormal").data(mvisCorrplotData["colNames"]).enter().append("text")
@@ -358,6 +386,7 @@ console.log("add axis")
 		.attr("transform", "rotate(-90,"+lineStart+","+lineStart+")")
     //90度在坐标轴上方
 		.text(function(d){return d;})
+    .attr("font-size",numLabelSize*2)
 //	vLineArray[i] =
 // new Array(cellSize*i + lineStart, lineStart, cellSize*i + lineStart, lineEnd)
 //  hLineArray[i] =
@@ -400,12 +429,12 @@ console.log("add axis")
 			var legend = svg.selectAll("legend")
 					.data([1]).enter()//经常使用data([1])来添加一个元素？？？
 					.append("g")
-			var legendWidth = 30;
+			var legendWidth = 0.05*w;
 			var rectGradient = legend.selectAll("rectgradient")
 					.data([1])
 					.enter().append("rect")
 					.attr("id", "rectGradient")
-					.attr("x", w-80)
+					.attr("x", w-legendWidth*2.2)
 					.attr("y", lineStart)
 					.attr("width", legendWidth)
 					.attr("height", cellSize*n)
@@ -419,7 +448,7 @@ console.log("add axis")
 				numStep = (maxValue-minValue)/(nOfLabel-1)
 				var returnArray = new Array()
 				for (i=0; i<nOfLabel; i++){
-					returnArray.push(new Array(w-80+legendWidth, lineStart+(i*heightStep), parseFloat(maxValue-i*numStep).toFixed(1) ))
+					returnArray.push(new Array(w-legendWidth*1.2, lineStart+(i*heightStep), parseFloat(maxValue-i*numStep).toFixed(1) ))
 				}
 
 				return returnArray;
@@ -508,7 +537,7 @@ console.log("add axis")
 					}else if(diagShow=="diagFull"){
 						return "visible";}
 					})
-				.attr("font-size","12px")  //visible
+				.attr("font-size",1.5*numLabelSize)  //visible
 
 			svg.selectAll(".numLabel_X_"+x).transition().duration(500).delay(200)
 				.attr("visibility", function(d,i){
@@ -519,11 +548,11 @@ console.log("add axis")
 					}else if(diagShow=="diagFull"){
 						return "visible";}
 					})
-				.attr("font-size","12px")
+				.attr("font-size",1.5*numLabelSize)
 
 
 			svg.select(".text_Y_"+y).transition().duration(500).delay(200)
-				.attr("font-size", "23px")
+				.attr("font-size", 3*numLabelSize)
 				.attr("font-weight","bold")
 				.attr("fill","#f00")
 
@@ -541,7 +570,7 @@ console.log("add axis")
 				svg.select(".text_X_"+x).transition().duration(200).delay(200)
 				.attr("x", (x+0.5)*cellSize+lineStart-5)
 				.attr("y", lineStart-15)
-				.attr("font-size", "23px")
+				.attr("font-size", 3*numLabelSize)
 				.attr("font-weight","bold")
 				.attr("fill","#f00")
 				.attr("transform", "")
@@ -573,7 +602,7 @@ console.log("add axis")
 						return "hidden";
 					}
 				})
-			.attr("font-size","9px")//visible
+			.attr("font-size",numLabelSize)//visible
 
 
 		svg.selectAll("rect.tmp_rectv").transition().duration(500).delay(200)
@@ -608,7 +637,7 @@ console.log("add axis")
 			.style("opacity", 0)
 
 		svg.select(".text_Y_"+y).transition().duration(500).delay(200)
-			.attr("font-size", "15px")
+			.attr("font-size", 2*numLabelSize)
 			.attr("font-weight","normal")
 			.attr("fill","black")
 
@@ -617,7 +646,7 @@ console.log("add axis")
 			//.attr("x", lineStart+3)
 			.attr("y", (x+0.5)*cellSize+lineStart+5)
 			.attr("transform", "rotate(-90,"+lineStart+","+lineStart+")")
-			.attr("font-size", "15px")
+			.attr("font-size", 2*numLabelSize)
 			.attr("font-weight","normal")
 			.attr("fill","black")
 			.attr("text-anchor", "left")
@@ -628,7 +657,7 @@ console.log("add axis")
 					//.attr("x", lineStart+3)
 					.attr("y", (x+0.5)*cellSize+lineStart+5)
 					.attr("transform", "rotate(-90,"+lineStart+","+lineStart+")")
-					.attr("font-size", "15px")
+					.attr("font-size", 2*numLabelSize)
 					.attr("font-weight","normal")
 					.attr("fill","black")
 					.attr("text-anchor", "left")
@@ -638,7 +667,7 @@ console.log("add axis")
 					.attr("x", lineStart+3)
 					.attr("y", (x+0.5)*cellSize+lineStart+5)
 					.attr("transform", "rotate(-90,"+lineStart+","+lineStart+")")
-					.attr("font-size", "15px")
+					.attr("font-size", 2*numLabelSize)
 					.attr("font-weight","normal")
 					.attr("fill","black")
 					.attr("text-anchor", "left")
@@ -767,7 +796,7 @@ console.log("add axis")
 					.text(function(d){return(parseFloat(d[4]).toFixed(3));})
 					.attr("fill", function(d){ return (parseFloat(d[4])>middleValue) ? "orange":"green"})
 					//.attr("visibility", "hidden")
-					.attr("font-size","9px")
+					.attr("font-size",numLabelSize)
 
 		svg.selectAll(".rectCellNormal").remove()
 		rect = svg.selectAll(".rectCellNormal")
@@ -964,7 +993,7 @@ console.log({"seqInChange":newSeq})
 		t.selectAll(".numLabelNormal")
 				//.attr("visibility", "visible")
 				.attr("x", function(d,i){ return (cellSize*( newSeq[Math.floor(i/n)]-0.5) + lineStart);})
-				.attr("y", function(d,i){ return (cellSize*( newSeq[i%n]-0.5) + lineStart-5);})
+				.attr("y", function(d,i){ return (cellSize*( newSeq[i%n]-0.45) + lineStart);})
 				.attr("class", function(d,i){ return("numLabelNormal numLabel_Y_"+ (newSeq[i%n] -1) ) +" numLabel_X_"+ (newSeq[Math.floor(i/n)] -1);})
 				//.text(function(d,i) {return(newSeq[Math.floor(i/n)] + ";" + newSeq[i%n])})
 				//.attr("transform",function(d){ if (d[4]>0) {return "rotate( -45," + (cellSize*( 1.5) + lineStart) +","+(cellSize*( 1.5) + lineStart)+")"}
@@ -1152,6 +1181,7 @@ var tem = d3.selectAll(".axis_YNormal").call(t);
 
 
 
+
 //console.log({"newSeq":newSeq})
 
 //console.log(getSeq())
@@ -1212,7 +1242,7 @@ console.log(d3.selectAll(".axis_YNormal"))
 /**/
 
 /*2018-2-6 添加聚类的rects*/
-console.log(method)
+//console.log(method)
 
 
 
@@ -1264,6 +1294,45 @@ function addBars(){
 
 /**/
 	init_corrplot(method="circle")
+
+/**/
+
+$(function(){
+$( "#svgSizeSlider" ).slider({
+orientation: "horizontal",
+min:100,max:1000,value:500,
+});
+
+$("#svgSizeSub").on("click",function(){
+console.log(w)
+
+d3.selectAll("#plotSVG").remove();
+
+w = $("#svgSizeSlider").slider("value");
+h = w;
+
+
+svg = plotDiv.append("svg")
+    .attr("width", w)//这里可以修改
+    .attr("height", h)//
+  .attr("id", "plotSVG");
+//有点问题
+//wrapDiv.selectAll("div").remove();
+//wrapDiv.selectAll("svg").remove();
+/*
+var plotDiv = wrapDiv.append("div")
+ .attr("class", "corrplot")
+ .attr("id", "corrplot-1")
+
+var svgHTML = '	<svg xmlns="http://www.w3.org/2000/svg" version="1.1"><defs><linearGradient id="grad2" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#053061;stop-opacity:1" /><stop offset="50%" style="stop-color:#FFFFFF;stop-opacity:1" /><stop offset="100%" style="stop-color:#67001F;stop-opacity:1" /></linearGradient></defs></svg>'
+//添加svg
+wrapDiv.append("svg")
+ .html(svgHTML)
+*/
+init_corrplot(method = method)
+})
+})
+
 
   },
 

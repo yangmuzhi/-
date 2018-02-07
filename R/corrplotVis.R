@@ -6,9 +6,9 @@
 # You can learn more about corrplot by using 'corrplot' package:
 #
 #
-#	
+#
 #' @export
-#' @examples 
+#' @examples
 #' data(mtcars)
 #' M <- cor(mtcars)
 #'
@@ -23,7 +23,7 @@ corrplotVis <- function(corr, color = NULL, size=c(950,900),
 	#判断是否是相关性矩阵
 	 if(!is.matrix(corr)&!is.data.frame(corr))
 		stop("Need a matrix or data frame!")
-	
+
 	orderList = .orderListGenerate(corr, orderList = c("original", "AOE", "FPC", "hclust", "name"))#一个自定函数
 	#,使用不同的算法，order，来实现变量顺序的变化。
 	if(is.null(color)){
@@ -36,7 +36,7 @@ corrplotVis <- function(corr, color = NULL, size=c(950,900),
 	colNames = colnames(corr)
 	colnames(corr) = NULL
 	rownames(corr) = NULL
-##	
+##
 	if (ncol(corr) == 1){##ncol只有1列
 		outList <- list(
 				matrixLength = ncol(corr),
@@ -61,12 +61,13 @@ corrplotVis <- function(corr, color = NULL, size=c(950,900),
 				orderList = orderList
 		)
 		#return (outList)
-		
-	}	
+
+	}
 	settings=NULL
 	x <- list(
 		data = outList,
-		settings = settings
+		settings = settings,
+		size = size
 	)
 	#print(x)
 
@@ -111,13 +112,13 @@ renderCorrplot <- function(expr, env = parent.frame(), quoted = FALSE) {
 		return(returnList)
 	}
     hclust.method <- "complete"
-	
-	returnList <- as.list(seq_along(orderList))# ??seq_along 
+
+	returnList <- as.list(seq_along(orderList))# ??seq_along
 	names(returnList) <- orderList
 	### Original Order
 	returnList$original <- seq_along(colnames(corr))
-	
-	
+
+
 	#### AOE Order
 	x.eigen <- eigen(corr)$vectors[, 1:2]
     e1 <- x.eigen[, 1]
@@ -125,18 +126,18 @@ renderCorrplot <- function(expr, env = parent.frame(), quoted = FALSE) {
     alpha <- ifelse(e1 > 0, atan(e2/e1), atan(e2/e1) + pi)
     ord <- rank(alpha)
 	returnList$AOE <- ord
-	
+
 	### FPC Oder
     x.eigen <- eigen(corr)$vectors[, 1:2]
     e1 <- x.eigen[, 1]
     ord <- rank(e1)
 	returnList$FPC <- ord
-  
+
 	### name Order
     returnList$name <- as.vector(rank(rownames(corr)))
-	
+
 	### hclust Order
-    returnList$hclust <- order(order.dendrogram(as.dendrogram(hclust(as.dist(1 - 
+    returnList$hclust <- order(order.dendrogram(as.dendrogram(hclust(as.dist(1 -
             corr), method = hclust.method))))
 
     return(returnList)
@@ -147,7 +148,7 @@ renderCorrplot <- function(expr, env = parent.frame(), quoted = FALSE) {
 #'
 #' @export
 runServer = function(displayMatrix){
-	# 
+	#
 	save(displayMatrix, file=file.path(system.file("shinyApps",  package="bfdVis"), "displayMatrix.RData"))
 	shiny::runApp(system.file("shinyApps", package="bfdVis"))
 }
