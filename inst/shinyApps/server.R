@@ -17,7 +17,7 @@ shinyServer(function(input, output) {
 	bfdVis::corrplotVis(cor(displayMatrix))
 
   })
-  output$selection <- renderPrint(
-    input$show_vars
-  )
+  #output$selection <- renderPrint(
+   # input$show_vars
+  #)
 })

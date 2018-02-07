@@ -4,7 +4,7 @@ HTMLWidgets.widget({
 
   initialize: function(el, width, height) {
 
-//     console.log("init")
+    console.log("init")
   //定义div元素
 	 var wrapDiv = d3.select(el)
 		.append("div")
@@ -27,7 +27,7 @@ HTMLWidgets.widget({
 /*               */
 //el: the elements host the widget
 //x:包括data和settings
-//
+//rendervaule：代码压缩
   renderValue: function(el, x, wrapDiv) {
 	 wrapDiv.selectAll("div").remove();
 	 wrapDiv.selectAll("svg").remove();
@@ -231,7 +231,7 @@ function init_corrplot( method){
 
 	if (method=="circle"){
 
-       console.log(newSeq)
+//       console.log(newSeq)
 
 		var cells = svg.selectAll(".cells").data(aData)
 			.enter()
@@ -348,7 +348,7 @@ else if (method=="ellipse"){//
 			.attr("y", function(d,i){return (newSeq[i]-0.5)*cellSize+lineStart+5;})
 			.text(function(d){return d;})
 			.attr("font-size","15px")
-
+console.log("add axis")
 	//Fixed
   //x坐标
 	var axisLabel_X = svg.selectAll(".axis_XNormal").data(mvisCorrplotData["colNames"]).enter().append("text")
@@ -908,7 +908,7 @@ else if (method=="ellipse"){//
 	function changeSeq(newSeq, method){
 
 
-
+console.log({"seqInChange":newSeq})
 		var t = svg.transition().duration(500);
 		t.selectAll(".axis_YNormal")
 			.delay(function(d, i) { return i * 40; })
@@ -916,6 +916,7 @@ else if (method=="ellipse"){//
 			.attr("y", function(d,i){return (newSeq[i]-0.5)*cellSize+lineStart+5;})
 			.attr("class", function(d,i){return "axis_YNormal text_Y_" + (newSeq[i]-1)})
 			//.attr("transform", function(d, i) {return "translate(0," + ((newSeq[i]-i-1)*cellSize) + ")"; })
+//console.log(t.selectAll(".axis_YNormal").attr("y"))
 
 		t.selectAll(".axis_XNormal")
 			.delay(function(d, i) { return i * 40; })
@@ -1124,6 +1125,7 @@ var tem = d3.selectAll(".axis_YNormal").call(t);
 	$("#orderSelect").on("change", function() {
 		//console.log(1233332)
 		newSeq = mvisCorrplotData["orderList"][this.value]; changeSeq(newSeq , method=method)
+    console.log(d3.selectAll(".axis_YNormal"))
 
 	});
 
@@ -1150,7 +1152,7 @@ var tem = d3.selectAll(".axis_YNormal").call(t);
 
 
 
-console.log({"newSeq":newSeq})
+//console.log({"newSeq":newSeq})
 
 //console.log(getSeq())
 
@@ -1160,6 +1162,7 @@ console.log({"newSeq":newSeq})
 //[0,1,2]  [1,0,2]  [1,0,2]
 //console.log( {"zindex":$(".sortBars").sortable("option","zIndex")});
 
+// 人为改变的bars
 
 $("#barsSeq").on("click", function() {
   //console.log(1233332)
@@ -1172,7 +1175,7 @@ function  getSeq(){
 
 var barSeq = new Array();
 //var nowSeq = new Array();
-
+var barText = new Array();
 for(var i=0;i<colNames.length;i++){
 
 /*for(var j=0;j<colNames.length;j++){
@@ -1181,15 +1184,23 @@ nowSeq[j] = colNames[newSeq[j]-1]
 }*/
 //console.log(nowSeq)
 
-barSeq[i] =   colNames.indexOf($(".sortBars li:eq("+i+")").text())+1;
+
+barText[i] =   $(".sortBars li:eq("+i+")").text();
 
 }
+console.log(barText)
+for(var i=0;i<colNames.length;i++){
+
+barSeq[i] = barText.indexOf(colNames[i])+1;//这里坑了很久。。。
+}
+
 //console.log(barSeq)
 return barSeq;
 }
 newSeq = getSeq();
   changeSeq( newSeq,method=method);//这句为什么不行
-console.log({"newSeq":newSeq,"getSeq":getSeq()})
+console.log({"newSeq":newSeq})
+console.log(d3.selectAll(".axis_YNormal"))
 
 //console.log(barSeq.indexOf("mpg"))
 });
@@ -1199,6 +1210,14 @@ console.log({"newSeq":newSeq,"getSeq":getSeq()})
 
 
 /**/
+
+/*2018-2-6 添加聚类的rects*/
+console.log(method)
+
+
+
+/**/
+
 
 		//var rects = svg.selectAll(".rect")
 	}
@@ -1226,7 +1245,7 @@ function addBars(){
   }
 
   var nameBars = nameToHtml();
-  console.log(nameBars)
+  //console.log(nameBars)
 
 
   d3.select("#bottonBox").append("div").attr("class","sortBars")
