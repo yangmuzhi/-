@@ -734,7 +734,7 @@ sigpchx[n*i+j] = new Array( aData[n*i+j][7][0],aData[n*i+j][7][1],aData[n*i+j][7
 sigpchy[n*i+j] = new Array( aData[n*i+j][8][0],aData[n*i+j][8][1],aData[n*i+j][8][2],aData[n*i+j][8][3]);//y1,y2,x1,x2,
 }
 }
-function drawPch (newSeq){
+function drawPch (newSeq,diagShow){
 var sigArray = new Array();
 console.log(sigArray)
 for(var i=0;i<n;i++){
@@ -742,7 +742,8 @@ for(var j=0;j<n;j++){
 sigArray[n*(newSeq[i]-1)+(newSeq[j]-1)] = SigArray[n*i+j];
 }}
 console.log(sigArray)
-
+svg.selectAll(".sigNormalI").remove()
+svg.selectAll(".sigNormalII").remove()
 var sigI = svg.selectAll("#significance_I").data(sigpchx).enter().append("line")
 .attr("x1",function(d){return d[0]}).attr("y1",function(d){return d[2]})
 .attr("x2",function(d){return d[1]}).attr("y2",function(d){return d[3]})
@@ -767,14 +768,12 @@ var a1 = Math.floor(m/n)//取行
 var a2 = m%n//取列
 
 if(sigArray[m]==1){return "hidden"}else if (diagShow=="diagLower"){
-  return  a1>a2?"hidden":"visible";
-}else if(diagShow=="diagUpper"){
   return  a1<a2?"hidden":"visible";
+}else if(diagShow=="diagUpper"){
+  return  a1>a2?"hidden":"visible";
 }else if(diagShow=="diagFull"){
   return "visible";}else{
 return "hidden";}
-
-
 })
 d3.selectAll('.sigNormalII').attr("visibility",function(u,m){
 
@@ -782,23 +781,17 @@ d3.selectAll('.sigNormalII').attr("visibility",function(u,m){
   var a2 = m%n//取列
 
   if(sigArray[m]==1){return "hidden"}else if (diagShow=="diagLower"){
-    return  a1>a2?"hidden":"visible";
-  }else if(diagShow=="diagUpper"){
     return  a1<a2?"hidden":"visible";
+  }else if(diagShow=="diagUpper"){
+    return  a1>a2?"hidden":"visible";
   }else if(diagShow=="diagFull"){
     return "visible";}else{
   return "hidden";
   }
-
 })
-
-
-
-
-
 }
 
-drawPch(newSeq=newSeq)
+drawPch(newSeq=newSeq,diagShow=diagShow)
 /*.attr("x1",function(d,i){
     var y = Math.floor(i/n)//取行
       x = i%n//取列
@@ -1343,7 +1336,7 @@ var tem = d3.selectAll(".axis_YNormal").call(t);
 		//console.log(1233332)
 		newSeq = mvisCorrplotData["orderList"][this.value]; changeSeq(newSeq , method=method)
     console.log(d3.selectAll(".axis_YNormal"))
-drawPch(newSeq=newSeq);
+drawPch(newSeq=newSeq,diagShow=diagShow)
 	});
 
 
@@ -1351,7 +1344,7 @@ drawPch(newSeq=newSeq);
 			diagShow = "diag" + $('#diagDiv input:radio:checked').attr("id")
 
 			diagInit(diagShow)
-      drawPch(newSeq=newSeq)
+    drawPch(newSeq=newSeq,diagShow=diagShow)
 	});
 
 // 按钮可以移动
