@@ -63,11 +63,16 @@ corrplotVis <- function(corr, color = NULL, size=c(950,900),
 		#return (outList)
 
 	}
-	settings=NULL
+##
+##CI,sigLevel
+CI <- list()
+CI$p <- corrplot::cor.mtest(corr)$p
+
+
 	x <- list(
 		data = outList,
-		settings = settings,
-		size = size
+		size = size,
+		CI = CI
 	)
 	#print(x)
 

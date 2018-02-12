@@ -14,6 +14,7 @@ HTMLWidgets.widget({
 	var buttonHTML = '<div id="bottonBox" class="row" style="margin-top:-200px; width:900px"> <div class="col-md-2">' +
   '<div id = "svgSizeSlider"></div> <input type="submit" id="svgSizeSub"/>'+
   '<p class="buttonLabel"> Order:</p>'+
+  '<div><p>Sig: </p><button id="sigshow" value="sigshow">sigshow</button></div>'+
 		'<select id="orderSelect" style="width:80px"> <option value="original">original</option> <option value="AOE">AOE</option><option value="FPC">FPC</option>			<option value="hclust">hclust</option>			<option value="name">name</option>		</select>		</div>'+
 		'<div class="col-md-4" >	<p class="buttonLabel"> DiagShow:</p>		<div id="diagDiv" class="btn-group" data-toggle="buttons">			<label class="btn btn-info">				<input type="radio" name="options" id="Upper" autocomplete="off"  value="Upper" > Upper			</label>			<label class="btn btn-info">				<input type="radio" name="options" id="Lower" autocomplete="off" value="Lower"> Lower			</label>			<label class="btn btn-info active">				<input type="radio" name="options" id="Full" autocomplete="off" value="Full" checked> Full			</label>		</div></div>'+
 		'<div class="col-md-4" >		<p class="buttonLabel"> Legend:</p>			<div id="legendDiv" class="btn-group" data-toggle="buttons" style="position: relative">				<label class="btn btn-info active">					<input type="radio" name="legend" autocomplete="off" checked id="circle" value="Circle"> Circle				</label>				<label class="btn btn-info">					<input type="radio" name="legend" autocomplete="off" id="square"  value="Square"> Square				</label>				<label class="btn btn-info">					<input type="radio" name="legend" autocomplete="off" id="ellipse" value="Ellipse"> Ellipse				</label>			</div>	</div>'+
@@ -112,6 +113,20 @@ numLabelSize = 0.01*w
 		minCol = mvisCorrplotData["color"][2];
 		newSeq = mvisCorrplotData["orderList"]["original"]
     colNames = mvisCorrplotData["colNames"]
+//CI
+pMat = x["CI"]["p"];
+
+SigArray = new Array();
+for(var i=0;i<pMat.length;i++){
+for(var j=0;j<pMat.length;j++){
+
+if(pMat[i][j]>0.05){
+  SigArray[i*n+j]=0; }else {
+  SigArray[i*n+j]=1;
+  };
+
+}}
+
 
     nowSeq = new Array() ;
 
@@ -175,6 +190,7 @@ numLabelSize = 0.01*w
 				return sColor;
 			}
 		};
+//计算大量数据
 
 		var parse_mvisCorrplotData = function(a){//该函数计算矩阵可视化每个cell的属性值
 			if (a.length==1){//只有一个cell时
@@ -197,8 +213,13 @@ numLabelSize = 0.01*w
 						cx = cellSize*(j+0.5) + lineStart;
 						cy = cellSize*(i+0.5) + lineStart;
 						color = colorSelector(a[i][j])
-            //                          cell的半径，cell位置，颜色，原始数据，列位置，行位置
-						outArray[i*n+j] = new Array(r, cx, cy, color, a[i][j], cellSize*j+lineStart, cellSize*i+lineStart )
+            //                          cell的半径，cell位置，颜色，原始数据，行位置，列位置
+						outArray[i*n+j] = new Array(r, cx, cy, color, a[i][j], cellSize*j+lineStart, cellSize*i+lineStart,//这里改了
+           [cellSize*j+lineStart+pchSider,cellSize*(j+1)+lineStart-pchSider,cellSize*i+lineStart+pchSider,cellSize*(i+1)+lineStart-pchSider],
+           [cellSize*(j+1)+lineStart-pchSider,cellSize*j+lineStart+pchSider,cellSize*i+lineStart+pchSider,cellSize*(i+1)+lineStart-pchSider]
+           //x1,x2,y1,y2 计算pch的一条线
+            //[cellSize*i+lineStart+0.05*cellSize,cellSize*(i+1)+lineStart-0.05*cellSize]// 计算pch另一条线
+          )//x1,x2
 					}
 				}
 				return outArray;
@@ -223,7 +244,7 @@ numLabelSize = 0.01*w
 					percent = (middleValue - v)/(middleValue - minValue);
 					for (i=0; i<3; i++){
 						if (minColRGB[i] < middleColRGB[i]) returnCol[i] = parseInt(middleColRGB[i] -(middleColRGB[i] - minColRGB[i]) * percent);
-						else returnCol[i] =  parseInt((minRGB[i] - middleColRGB[i]) * percent + middleColRGB[i]);
+						else returnCol[i] =  parseInt((minColRGB[i] - middleColRGB[i]) * percent + middleColRGB[i]);
 					}
 				}
 				return("RGB(" + returnCol.join(",") + ")")
@@ -245,8 +266,8 @@ lineEnd = 0.85*w;
 cellSize = (lineEnd - lineStart)/n;//cell的个数
 maxR = 0.9 * cellSize;//应该是定义圈的最大最小值
 minR = 0.1 * cellSize;
-
-
+numLabelSize = 0.01*w
+pchSider = 0.005*w
 		for (i=0; i<n+1; i++){
 			vLineArray[i] =  new Array(cellSize*i + lineStart, lineStart, cellSize*i + lineStart, lineEnd)
 			hLineArray[i] = new Array(lineStart, cellSize*i + lineStart, lineEnd, cellSize*i + lineStart)
@@ -488,8 +509,8 @@ else if (method=="ellipse"){//
 
 	var overCell =  function(d,i){
     // 原来是这样实现的！！！
-			var y = Math.floor(i/n)//取列
-				x = i%n//取行
+			var y = Math.floor(i/n)//取行
+				x = i%n//取列
 //鼠标放在元素上面，元素会变大
 			if (method=="circle"){
 				svg.selectAll(".cell_Y_"+y).transition().duration(500).delay(200)
@@ -682,9 +703,174 @@ else if (method=="ellipse"){//
 //鼠标离开，恢复
 	rect.on("mouseout.tooltip",outCell)
 
+
+//计算sig的显示东西
+//设定sig
+
+console.log(pMat.length);
+//找到pMat大于标准的 0.05 的
+
+//大于0.05为0，小于为1
+/*cellSize*j+lineStart, cellSize*i+lineStart*/
+
+
+/*			.attr("x", function(d,i){return  d[5]})
+      .attr("y", function(d,i){return  d[6]})
+      .attr("class", function(d,i){ a1 = Math.floor(i/n); a2 = i%n; return("rectCellNormal rect_Y_"+a1+" rect_X_"+a2);})
+      .attr("width",cellSize)
+      .attr("height",cellSize)
+      .attr("stroke", "grey")
+      .attr("fill","grey")
+      .style("opacity", 0)
+      */
+//绘制叉号
+
+
+var sigpchx = new Array();
+var sigpchy = new Array();
+for(var i=0;i<n;i++){
+for(var j=0;j<n;j++){
+sigpchx[n*i+j] = new Array( aData[n*i+j][7][0],aData[n*i+j][7][1],aData[n*i+j][7][2],aData[n*i+j][7][3]);//y1,y2,x1,x2,
+sigpchy[n*i+j] = new Array( aData[n*i+j][8][0],aData[n*i+j][8][1],aData[n*i+j][8][2],aData[n*i+j][8][3]);//y1,y2,x1,x2,
+}
+}
+function drawPch (newSeq){
+var sigArray = new Array();
+console.log(sigArray)
+for(var i=0;i<n;i++){
+for(var j=0;j<n;j++){
+sigArray[n*(newSeq[i]-1)+(newSeq[j]-1)] = SigArray[n*i+j];
+}}
+console.log(sigArray)
+
+var sigI = svg.selectAll("#significance_I").data(sigpchx).enter().append("line")
+.attr("x1",function(d){return d[0]}).attr("y1",function(d){return d[2]})
+.attr("x2",function(d){return d[1]}).attr("y2",function(d){return d[3]})
+.attr("stroke","black").attr("stroke-width",1)
+.attr("class",function(d,i){
+  var x = i/n, y = i%n;
+  return 'sigNormalI sig_X_'+x+' sig_Y_'+y;
+});
+
+var sigII = svg.selectAll("#significance_II").data(sigpchy).enter().append("line")
+.attr("x1",function(d){return d[0]}).attr("y1",function(d){return d[2]})
+.attr("x2",function(d){return d[1]}).attr("y2",function(d){return d[3]})
+.attr("stroke","black").attr("stroke-width",1)
+.attr("class",function(d,i){
+  var x = Math.floor(i/n), y = i%n;
+  return 'sigNormalII sig_X_'+x+' sig_Y_'+y;
+});
+
+d3.selectAll('.sigNormalI').attr("visibility",function(u,m){
+
+var a1 = Math.floor(m/n)//取行
+var a2 = m%n//取列
+
+if(sigArray[m]==1){return "hidden"}else if (diagShow=="diagLower"){
+  return  a1>a2?"hidden":"visible";
+}else if(diagShow=="diagUpper"){
+  return  a1<a2?"hidden":"visible";
+}else if(diagShow=="diagFull"){
+  return "visible";}else{
+return "hidden";}
+
+
+})
+d3.selectAll('.sigNormalII').attr("visibility",function(u,m){
+
+  var a1 = Math.floor(m/n)//取行
+  var a2 = m%n//取列
+
+  if(sigArray[m]==1){return "hidden"}else if (diagShow=="diagLower"){
+    return  a1>a2?"hidden":"visible";
+  }else if(diagShow=="diagUpper"){
+    return  a1<a2?"hidden":"visible";
+  }else if(diagShow=="diagFull"){
+    return "visible";}else{
+  return "hidden";
+  }
+
+})
+
+
+
+
+
+}
+
+drawPch(newSeq=newSeq)
+/*.attr("x1",function(d,i){
+    var y = Math.floor(i/n)//取行
+      x = i%n//取列
+
+var x1 = d3.select('.rect_X_'+x+' rect_Y_'+y).attr("x")
+  return x1})
+.attr("y1",function(d,i){
+  var y = Math.floor(i/n)//取行
+    x = i%n//取列
+
+var y1 = d3.select('.rect_X_'+x+' rect_Y_'+y).attr("y")
+return y1
+})
+.attr("x2",function(d,i){
+  var y = Math.floor(i/n)//取行
+    x = i%n//取列
+
+var x2 = d3.select('.rect_X_'+x+' rect_Y_'+y).attr("x")+cellSize
+return x2
+})
+.attr("y2",function(d,i){
+  var y = Math.floor(i/n)//取行
+    x = i%n//取列
+
+var y2 = d3.select('.rect_X_'+x+' rect_Y_'+y).attr("y")+cellSize
+return y2
+})
+*/
+//
+//  var sig = d3.selectAll(".significance").append("line")
+  //				.attr("x", function(d,i){ return (cellSize*( newSeq[Math.floor(i/n)]-0.5) + lineStart);})
+  //				.attr("y", function(d,i){ return (cellSize*( newSeq[i%n]-0.45) + lineStart);})// 这里完全按照效果，可能需要一点靠谱的解释
+  // var sig = d3.selectAll(".significance").append("line")
+
+
+
+//sigDraw()
+
+//console.log(aData[7])
+/*
+var digLineII = d3.svg.line()
+.x(function(d){return 1*d[5]+0.05*cellSize;})
+.y(function(d){return 1*d[5]+0.05*cellSize;})
+*/
+
+///
+
 /*按钮*/
+/*
+$("#sigshow").click(function(){
+if ($(this).val()=="sigshow"){
+  sigShow = true;
+$("#sigshow").text("sighidden")
+$("#sigshow").val("sighidden")
+//
+svg.select()
+
+}else{
+sigShow = false;
+$("#sigshow").text("sigshow")
+$("#sigshow").val("sigshow")
+}
+
+
+})
+
+//
+*/
+
 //显示数字按钮
-	$('button[id=numShow]').click(
+
+$("button[id=numShow]").click(
 		function(){
 			if ($(this).val()=="show"){
 				numShow = true;
@@ -716,6 +902,8 @@ else if (method=="ellipse"){//
 		}
 	)
 // legend
+
+
 	$('#legendDiv').on('change', function() {
 		//console.log( $('#diagDiv input:radio:checked').attr("id"));
 
@@ -1155,7 +1343,7 @@ var tem = d3.selectAll(".axis_YNormal").call(t);
 		//console.log(1233332)
 		newSeq = mvisCorrplotData["orderList"][this.value]; changeSeq(newSeq , method=method)
     console.log(d3.selectAll(".axis_YNormal"))
-
+drawPch(newSeq=newSeq);
 	});
 
 
@@ -1163,6 +1351,7 @@ var tem = d3.selectAll(".axis_YNormal").call(t);
 			diagShow = "diag" + $('#diagDiv input:radio:checked').attr("id")
 
 			diagInit(diagShow)
+      drawPch(newSeq=newSeq)
 	});
 
 // 按钮可以移动
@@ -1228,9 +1417,14 @@ barSeq[i] = barText.indexOf(colNames[i])+1;//这里坑了很久。。。
 return barSeq;
 }
 newSeq = getSeq();
-  changeSeq( newSeq,method=method);//这句为什么不行
+changeSeq( newSeq,method=method);//
+drawPch();
+
 console.log({"newSeq":newSeq})
 console.log(d3.selectAll(".axis_YNormal"))
+
+//
+
 
 //console.log(barSeq.indexOf("mpg"))
 });
