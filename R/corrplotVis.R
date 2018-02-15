@@ -66,13 +66,33 @@ corrplotVis <- function(corr, color = NULL, size=c(950,900),
 ##
 ##CI,sigLevel
 CI <- list()
+
 CI$p <- corrplot::cor.mtest(corr)$p
+###hclust seq
+rectOrderNum <- list()
+tree <- hclust(as.dist(1-corr),method = "complete")
+hc <- cutree(tree, k = c(2,3,4))
+hcOrder <- hc[order(orderList$hclust),]
+##
+rectNum <- function(hcOrder){
+
+returnNum <- NULL 
+for(i in unique(hcOrder)){
+returnNum  <-c(returnNum ,max(which(hcOrder==i)))
+}
+return(returnNum)
+}
 
 
+rectOrderNum <- apply(hcOrder,2,rectNum)
+
+names(rectOrderNum)<- c("a","b","c")
+###
 	x <- list(
 		data = outList,
 		size = size,
-		CI = CI
+		CI = CI,
+		rectOrderNum = rectOrderNum
 	)
 	#print(x)
 

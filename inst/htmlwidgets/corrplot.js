@@ -15,7 +15,7 @@ HTMLWidgets.widget({
   '<div id = "svgSizeSlider"></div> <input type="submit" id="svgSizeSub"/>'+
   '<p class="buttonLabel"> Order:</p>'+
   '<div><p>Sig: </p><button id="sigshow" value="sigshow">sigshow</button></div>'+
-		'<select id="orderSelect" style="width:80px"> <option value="original">original</option> <option value="AOE">AOE</option><option value="FPC">FPC</option>			<option value="hclust">hclust</option>			<option value="name">name</option>		</select>		</div>'+
+		'<div id="hcRect"><select id="orderSelect" style="width:80px"> <option value="original">original</option> <option value="AOE">AOE</option><option value="FPC">FPC</option>			<option value="hclust">hclust</option>			<option value="name">name</option>		</select>		</div>'+
 		'<div class="col-md-4" >	<p class="buttonLabel"> DiagShow:</p>		<div id="diagDiv" class="btn-group" data-toggle="buttons">			<label class="btn btn-info">				<input type="radio" name="options" id="Upper" autocomplete="off"  value="Upper" > Upper			</label>			<label class="btn btn-info">				<input type="radio" name="options" id="Lower" autocomplete="off" value="Lower"> Lower			</label>			<label class="btn btn-info active">				<input type="radio" name="options" id="Full" autocomplete="off" value="Full" checked> Full			</label>		</div></div>'+
 		'<div class="col-md-4" >		<p class="buttonLabel"> Legend:</p>			<div id="legendDiv" class="btn-group" data-toggle="buttons" style="position: relative">				<label class="btn btn-info active">					<input type="radio" name="legend" autocomplete="off" checked id="circle" value="Circle"> Circle				</label>				<label class="btn btn-info">					<input type="radio" name="legend" autocomplete="off" id="square"  value="Square"> Square				</label>				<label class="btn btn-info">					<input type="radio" name="legend" autocomplete="off" id="ellipse" value="Ellipse"> Ellipse				</label>			</div>	</div>'+
 		'<div class="col-md-2" >		 <p class="buttonLabel"> Number: </p>		<button type="button" id="numShow" class="btn btn-outline-info" value="show">Show</button>	</div></div>'+
@@ -51,8 +51,7 @@ h = x["size"][1]
 //$("#svgSizeSlider").value
 
 mvisCorrplotData = x['data']
-
-
+rectOrderNum = x['rectOrderNum']
 var  n = mvisCorrplotData["matrixLength"];
 /*定义比例尺   2018-2-7*/
 //这里可以这样设想，可以设置一些滑轮选项来调整 svg的大小，内部元素的一些细节大小。
@@ -736,7 +735,7 @@ sigpchy[n*i+j] = new Array( aData[n*i+j][8][0],aData[n*i+j][8][1],aData[n*i+j][8
 }
 function drawPch (newSeq,diagShow){
 var sigArray = new Array();
-console.log(sigArray)
+
 for(var i=0;i<n;i++){
 for(var j=0;j<n;j++){
 sigArray[n*(newSeq[i]-1)+(newSeq[j]-1)] = SigArray[n*i+j];
@@ -788,6 +787,7 @@ d3.selectAll('.sigNormalII').attr("visibility",function(u,m){
     return "visible";}else{
   return "hidden";
   }
+
 })
 }
 
@@ -1334,10 +1334,111 @@ var tem = d3.selectAll(".axis_YNormal").call(t);
 
 	$("#orderSelect").on("change", function() {
 		//console.log(1233332)
-		newSeq = mvisCorrplotData["orderList"][this.value]; changeSeq(newSeq , method=method)
-    console.log(d3.selectAll(".axis_YNormal"))
+newSeq = mvisCorrplotData["orderList"][this.value]; changeSeq(newSeq , method=method)
+console.log(d3.selectAll(".axis_YNormal"))
 drawPch(newSeq=newSeq,diagShow=diagShow)
-	});
+//hclust rects
+
+/* 添加聚类正方形  2018-2-14*/
+//
+var hcRectButton = '<button id=hcRectshow>hclustRectShow</button><select id="hcRectNum"><option value=2>2</option>'+
+'<option value=3>3</option><option value=4>4</option></select>';
+if(this.value=='hclust'){
+d3.selectAll("#hcRect")
+.append("div")
+.attr("id","#hcRect")
+.html(hcRectButton)
+$('#hcRectNum').on('change',function(){
+RectNum = this.value
+svg.selectAll(".hcRects").remove();
+if(RectNum==2){
+var rectData = rectOrderNum['a']
+}else if (RectNum==3){
+var rectData = rectOrderNum['b']
+}else if (RectNum==4){
+var rectData = rectOrderNum['c']
+}
+//
+var rectTem = new Array()
+var hcRect = new Array()
+console.log(rectData)
+
+for(var i=0;i<rectData.length;i++){
+if(i==0){ rectTem[i] = 0
+}else{ rectTem[i] = rectData[i-1]
+}
+hcRect[i] = [rectTem[i],rectData[i]]
+}
+console.log(hcRect)
+
+//hcRect = [[0,5],[5,7],[7,11]]
+
+var Rect = hcRect
+
+//
+
+svg.selectAll('.hcRectsI').data(Rect).enter().append("line")
+.attr("x1",function(d,i){
+return d[0]*cellSize+lineStart})
+.attr("y1",function(d,i){
+return d[0]*cellSize+lineStart})
+.attr("x2",function(d,i){
+return d[0]*cellSize+lineStart})
+.attr("y2",function(d,i){
+return d[1]*cellSize+lineStart})
+.attr("stroke","black")
+.attr("stroke-width",5)
+.attr('class',"hcRects")
+
+//
+svg.selectAll('.hcRectsII').data(Rect).enter().append("line")
+.attr("x1",function(d,i){
+return d[0]*cellSize+lineStart})
+.attr("y1",function(d,i){
+return d[0]*cellSize+lineStart})
+.attr("x2",function(d,i){
+return d[1]*cellSize+lineStart})
+.attr("y2",function(d,i){
+return d[0]*cellSize+lineStart})
+.attr("stroke","black")
+.attr("stroke-width",5)
+.attr('class',"hcRects")
+//
+svg.selectAll('.hcRectsIII').data(Rect).enter().append("line")
+.attr("x1",function(d,i){
+return d[1]*cellSize+lineStart})
+.attr("y1",function(d,i){
+return d[0]*cellSize+lineStart})
+.attr("x2",function(d,i){
+return d[1]*cellSize+lineStart})
+.attr("y2",function(d,i){
+return d[1]*cellSize+lineStart})
+.attr("stroke","black")
+.attr("stroke-width",5)
+.attr('class',"hcRects")
+//
+svg.selectAll('.hcRectsIV').data(Rect).enter().append("line")
+.attr("x1",function(d,i){
+return d[0]*cellSize+lineStart})
+.attr("y1",function(d,i){
+return d[1]*cellSize+lineStart})
+.attr("x2",function(d,i){
+return d[1]*cellSize+lineStart})
+.attr("y2",function(d,i){
+return d[1]*cellSize+lineStart})
+.attr("stroke","black")
+.attr("stroke-width",5)
+.attr('class',"hcRects")
+
+})
+
+}else {
+svg.selectAll(".hcRects").remove();
+d3.selectAll("#hcRectshow").remove();
+d3.selectAll("#hcRectNum").remove();
+}
+  });
+
 
 
 	$('#diagDiv').on('change', function(){
@@ -1358,7 +1459,6 @@ drawPch(newSeq=newSeq,diagShow=diagShow)
 //利用sortable bars来实现变换
 
 //
-
 
 
 
@@ -1410,11 +1510,11 @@ barSeq[i] = barText.indexOf(colNames[i])+1;//这里坑了很久。。。
 return barSeq;
 }
 newSeq = getSeq();
-changeSeq( newSeq,method=method);//
-drawPch();
 
-console.log({"newSeq":newSeq})
-console.log(d3.selectAll(".axis_YNormal"))
+changeSeq( newSeq,method=method);//
+drawPch(newSeq=newSeq,diagShow=diagShow)
+//console.log({"newSeq":newSeq})
+//console.log(d3.selectAll(".axis_YNormal"))
 
 //
 
