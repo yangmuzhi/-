@@ -20,7 +20,7 @@ a {
 	stroke:black;
 }
  path {
-				
+
 	stroke-width: 1;
 	fill: none;
 }
@@ -52,7 +52,7 @@ a {
 .rectCellNormal{
 	opacity: 0;
 }
-	
+
 .geo_province {
   fill: #aaa;
   fill-opacity: .8;
@@ -63,6 +63,11 @@ a {
 line {
   stroke: steelblue;
 }
+
+ .hcRects {
+stroke: black;
+}
+
 #geo_subGraph {
 	float:left
 }
@@ -86,11 +91,11 @@ font-family:'Microsoft Yahei';
 font-size:15px
 }
 
- 
+
 .rule {
   shape-rendering: crispEdges;
 }
-	
+
 button.ui-button-icon-only { width: 1.3em; }
 
 .zoomClassPercent {
@@ -114,7 +119,7 @@ zoom:1.5;
 }
 .textLabels{
    font-size:9pt;
-   font-family:sans-serif;	
+   font-family:sans-serif;
 }
 .labelNormal {
    font-size:10pt;
@@ -178,7 +183,7 @@ zoom:1.5;
 .clusterPlot path {
 	  display: none;
 	}
-	
+
 .axisLabel_ggplot{
 		font: 20px sans-serif;
 	}
@@ -192,3 +197,29 @@ zoom:1.5;
           color: #4D87C7;
           text-decoration: none;
     }
+
+#corrplotArea{
+  display: flex;
+}
+
+#seqChangeBar{
+  order: -1;
+  width: 100px;
+  margin-top: 30px;
+}
+
+#bottonBox{
+order: : 1;
+width:200px;
+font-family:sans-serif;
+margin-left: 50px;
+margin-top: 30px;
+}
+
+#svgSizeSlider{
+  width: 150px;
+}
+
+#content-wrapper{
+order: 0;
+}

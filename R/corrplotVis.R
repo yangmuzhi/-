@@ -16,7 +16,7 @@
 #' bfdVis::corrplotVis(cor(t(mtcars[1:25,])))
 #' corrplotVis(M)
 corrplotVis <- function(corr, color = NULL, size=c(950,900),
-		width = NULL, height = NULL
+		widthRange = c(100,1000)
 ) {
 	# settings = NULL,
 	 #corr = cor(mtcars)
@@ -92,7 +92,8 @@ names(rectOrderNum)<- c("a","b","c")
 		data = outList,
 		size = size,
 		CI = CI,
-		rectOrderNum = rectOrderNum
+		rectOrderNum = rectOrderNum,
+		range = widthRange
 	)
 	#print(x)
 

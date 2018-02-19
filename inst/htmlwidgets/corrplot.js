@@ -6,24 +6,28 @@ HTMLWidgets.widget({
 
     console.log("init")
   //定义div元素
-	 var wrapDiv = d3.select(el)
-		.append("div")
+var corrplotArea = d3.select(el).append('div')
+.attr('id', "corrplotArea")
+
+	 var wrapDiv = corrplotArea.append("div")
 		.attr("id", "content-wrapper")
 		//.attr("width", "10px")//这里可不可以修改
 //定义按钮
-	var buttonHTML = '<div id="bottonBox" class="row" style="margin-top:-200px; width:900px"> <div class="col-md-2">' +
-  '<div id = "svgSizeSlider"></div> <input type="submit" id="svgSizeSub"/>'+
+	var buttonHTML = '<div id="bottonBox" class="row"> <div class="col-md-2">' +
+'<div class="svgSize"><div><p class="buttonLabel">change size :</p>'+
+'<p> <span class="sizeButton">Min: </span><span id="minSize"></span><span id="sizeRatio"></span><span class="sizeButton">Max: </span><span id="maxSize"></span></p><div><div id = "svgSizeSlider"></div> <input type="submit" id="svgSizeSub"/></div>'+
   '<p class="buttonLabel"> Order:</p>'+
-  '<div><p>Sig: </p><button id="sigshow" value="sigshow">sigshow</button></div>'+
 		'<div id="hcRect"><select id="orderSelect" style="width:80px"> <option value="original">original</option> <option value="AOE">AOE</option><option value="FPC">FPC</option>			<option value="hclust">hclust</option>			<option value="name">name</option>		</select>		</div>'+
-		'<div class="col-md-4" >	<p class="buttonLabel"> DiagShow:</p>		<div id="diagDiv" class="btn-group" data-toggle="buttons">			<label class="btn btn-info">				<input type="radio" name="options" id="Upper" autocomplete="off"  value="Upper" > Upper			</label>			<label class="btn btn-info">				<input type="radio" name="options" id="Lower" autocomplete="off" value="Lower"> Lower			</label>			<label class="btn btn-info active">				<input type="radio" name="options" id="Full" autocomplete="off" value="Full" checked> Full			</label>		</div></div>'+
+'<div><p class="buttonLabel">Significance Test: </p><p class="hint">eliminate the p-value>0.05</p><button id="sigshow" value="sigshow">sigshow</button></div>'+
+    '<div class="col-md-4" >	<p class="buttonLabel"> DiagShow:</p>		<div id="diagDiv" class="btn-group" data-toggle="buttons">			<label class="btn btn-info">				<input type="radio" name="options" id="Upper" autocomplete="off"  value="Upper" > Upper			</label>			<label class="btn btn-info">				<input type="radio" name="options" id="Lower" autocomplete="off" value="Lower"> Lower			</label>			<label class="btn btn-info active">				<input type="radio" name="options" id="Full" autocomplete="off" value="Full" checked> Full			</label>		</div></div>'+
 		'<div class="col-md-4" >		<p class="buttonLabel"> Legend:</p>			<div id="legendDiv" class="btn-group" data-toggle="buttons" style="position: relative">				<label class="btn btn-info active">					<input type="radio" name="legend" autocomplete="off" checked id="circle" value="Circle"> Circle				</label>				<label class="btn btn-info">					<input type="radio" name="legend" autocomplete="off" id="square"  value="Square"> Square				</label>				<label class="btn btn-info">					<input type="radio" name="legend" autocomplete="off" id="ellipse" value="Ellipse"> Ellipse				</label>			</div>	</div>'+
 		'<div class="col-md-2" >		 <p class="buttonLabel"> Number: </p>		<button type="button" id="numShow" class="btn btn-outline-info" value="show">Show</button>	</div></div>'+
 		'<br/><br/><br/>'
 //在div元素中添加按钮
-	var bottonDiv = d3.select(el)
-		.append("div")
+	var bottonDiv = corrplotArea.append("div")
 		.html(buttonHTML)
+  var seqChangeBar = corrplotArea.append("div")
+  .attr("id", "seqChangeBar")
   //  console.log(buttonHTML)
     return wrapDiv;
   },
@@ -43,9 +47,17 @@ HTMLWidgets.widget({
 //添加svg
 	wrapDiv.append("svg")
 		.html(svgHTML)
+
 //添加svg元素
 w = x['size'][0]
 h = x["size"][1]
+
+init_w = w;
+
+maxSize = x['range'][1]
+minSize = x['range'][0]
+$('#minSize').text(minSize)
+$('#maxSize').text(maxSize)
 
 //console.log($("#svgSizeSlider").value)
 //$("#svgSizeSlider").value
@@ -72,7 +84,6 @@ var  n = mvisCorrplotData["matrixLength"];
 	//console.log(svg.attr("id"))
 	//console.log(el)
 	//console.log(x)
-
     //instance.setOption(x, true);
 	//instance.setTheme(eval(x.theme + "Theme"));
 
@@ -106,7 +117,7 @@ var  n = mvisCorrplotData["matrixLength"];
 		middleValue = 0;
 		minValue = -1;
 numLabelSize = 0.01*w
-
+sigshow = false
 		maxCol = mvisCorrplotData["color"][0];
 		middleCol = mvisCorrplotData["color"][1];
 		minCol = mvisCorrplotData["color"][2];
@@ -733,7 +744,7 @@ sigpchx[n*i+j] = new Array( aData[n*i+j][7][0],aData[n*i+j][7][1],aData[n*i+j][7
 sigpchy[n*i+j] = new Array( aData[n*i+j][8][0],aData[n*i+j][8][1],aData[n*i+j][8][2],aData[n*i+j][8][3]);//y1,y2,x1,x2,
 }
 }
-function drawPch (newSeq,diagShow){
+function drawPch (newSeq){
 var sigArray = new Array();
 
 for(var i=0;i<n;i++){
@@ -791,7 +802,6 @@ d3.selectAll('.sigNormalII').attr("visibility",function(u,m){
 })
 }
 
-drawPch(newSeq=newSeq,diagShow=diagShow)
 /*.attr("x1",function(d,i){
     var y = Math.floor(i/n)//取行
       x = i%n//取列
@@ -840,26 +850,28 @@ var digLineII = d3.svg.line()
 ///
 
 /*按钮*/
-/*
+
 $("#sigshow").click(function(){
 if ($(this).val()=="sigshow"){
-  sigShow = true;
+sigshow = true;
 $("#sigshow").text("sighidden")
 $("#sigshow").val("sighidden")
 //
-svg.select()
+drawPch(newSeq)
 
 }else{
-sigShow = false;
 $("#sigshow").text("sigshow")
 $("#sigshow").val("sigshow")
+svg.selectAll(".sigNormalI").remove()
+svg.selectAll(".sigNormalII").remove()
+sigshow = false;
 }
 
 
 })
 
 //
-*/
+
 
 //显示数字按钮
 
@@ -1225,7 +1237,7 @@ console.log({"seqInChange":newSeq})
 	}
 /*add 2018-1-30 实现cell拖拽 */
 //function DragExchange (d,i){
-
+/*
 
 //var textDrag(d,i){
  var t = d3.behavior.drag()
@@ -1310,7 +1322,7 @@ d3.select(this).transition().duration(500)
 
 //.attr("transform","rotate(-90,"+lineStart+","+lineStart+")")
 })
-
+*/
 
 
 /*
@@ -1320,7 +1332,7 @@ if(t.on("mouseover").size())
 }
 */
 
-var tem = d3.selectAll(".axis_YNormal").call(t);
+//var tem = d3.selectAll(".axis_YNormal").call(t);
 
 //tem.on("mouseover",function(){
 //  console.log({"size":d3.event.size})
@@ -1336,14 +1348,17 @@ var tem = d3.selectAll(".axis_YNormal").call(t);
 		//console.log(1233332)
 newSeq = mvisCorrplotData["orderList"][this.value]; changeSeq(newSeq , method=method)
 console.log(d3.selectAll(".axis_YNormal"))
-drawPch(newSeq=newSeq,diagShow=diagShow)
+if(sigshow){
+    drawPch(newSeq=newSeq)}
 //hclust rects
 
 /* 添加聚类正方形  2018-2-14*/
 //
-var hcRectButton = '<button id=hcRectshow>hclustRectShow</button><select id="hcRectNum"><option value=2>2</option>'+
-'<option value=3>3</option><option value=4>4</option></select>';
+var hcRectButton = '<div class=hcRectShow><button id="hcRectshow">hclustRectShow</button><select id="hcRectNum"><option value=2>2</option>'+
+'<option value=3>3</option><option value=4>4</option></select></div>';
 if(this.value=='hclust'){
+d3.selectAll(".hcRectShow").remove();
+
 d3.selectAll("#hcRect")
 .append("div")
 .attr("id","#hcRect")
@@ -1445,13 +1460,11 @@ d3.selectAll("#hcRectNum").remove();
 			diagShow = "diag" + $('#diagDiv input:radio:checked').attr("id")
 
 			diagInit(diagShow)
-    drawPch(newSeq=newSeq,diagShow=diagShow)
+if(sigshow){
+    drawPch(newSeq=newSeq)}
 	});
 
 // 按钮可以移动
-  $(function() {
-    $(".col-md-2").draggable();
-  })
 
 //  增加一个sortable板
 //console.log({colNames:x["data"]["colNames"]})
@@ -1512,7 +1525,8 @@ return barSeq;
 newSeq = getSeq();
 
 changeSeq( newSeq,method=method);//
-drawPch(newSeq=newSeq,diagShow=diagShow)
+if(sigshow){
+    drawPch(newSeq=newSeq)}
 //console.log({"newSeq":newSeq})
 //console.log(d3.selectAll(".axis_YNormal"))
 
@@ -1534,7 +1548,6 @@ drawPch(newSeq=newSeq,diagShow=diagShow)
 
 
 /**/
-
 
 		//var rects = svg.selectAll(".rect")
 	}
@@ -1565,10 +1578,10 @@ function addBars(){
   //console.log(nameBars)
 
 
-  d3.select("#bottonBox").append("div").attr("class","sortBars")
+  d3.select("#seqChangeBar").append("div").attr("class","sortBars")
   .html(nameBars)
     var barsBotton = '<button type="button" id="barsSeq">barsSeq</button>';
-  d3.select("#bottonBox").append("div").html(barsBotton)
+  d3.select("#seqChangeBar").append("div").html(barsBotton)
 
   $(".sortBars").sortable();
 }
@@ -1580,15 +1593,22 @@ function addBars(){
 
 
 /**/
-	init_corrplot(method="circle")
+
 
 /**/
+
 
 $(function(){
 $( "#svgSizeSlider" ).slider({
 orientation: "horizontal",
-min:100,max:1000,value:500,
+min:minSize,max:maxSize,value:init_w,
+
+slide: function( event, ui ) {
+        $( "#sizeRatio" ).text( Math.floor(100* ui.value/init_w) +"%");
+      }
 });
+$( "#sizeRatio" ).text( Math.floor(100*$( "#svgSizeSlider" ).slider( "value" )/init_w)+"%" );
+
 
 $("#svgSizeSub").on("click",function(){
 console.log(w)
@@ -1620,7 +1640,7 @@ init_corrplot(method = method)
 })
 })
 
-
+	init_corrplot(method="circle")
   },
 
   resize: function(el, width, height, instance) {
