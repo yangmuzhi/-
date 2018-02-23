@@ -15,19 +15,18 @@ var corrplotArea = d3.select(el).append('div')
 //定义按钮
 	var buttonHTML = '<div id="bottonBox" class="row"> <div class="col-md-2">' +
 '<div class="svgSize"><div><p class="buttonLabel">change size :</p>'+
-'<p> <span class="sizeButton">Min: </span><span id="minSize"></span><span id="sizeRatio"></span><span class="sizeButton">Max: </span><span id="maxSize"></span></p><div><div id = "svgSizeSlider"></div> <input type="submit" id="svgSizeSub"/></div>'+
+'<p> <span class="sizeButton">Min: </span><span id="minSize"></span><p>Present: <span id="sizeRatio"></span></p><p><span class="sizeButton">Max: </span><span id="maxSize"></span></p><div><div id = "svgSizeSlider"></div> <input type="submit" id="svgSizeSub"/></div>'+
   '<p class="buttonLabel"> Order:</p>'+
 		'<div id="hcRect"><select id="orderSelect" style="width:80px"> <option value="original">original</option> <option value="AOE">AOE</option><option value="FPC">FPC</option>			<option value="hclust">hclust</option>			<option value="name">name</option>		</select>		</div>'+
 '<div><p class="buttonLabel">Significance Test: </p><p class="hint">eliminate the p-value>0.05</p><button id="sigshow" value="sigshow">sigshow</button></div>'+
     '<div class="col-md-4" >	<p class="buttonLabel"> DiagShow:</p>		<div id="diagDiv" class="btn-group" data-toggle="buttons">			<label class="btn btn-info">				<input type="radio" name="options" id="Upper" autocomplete="off"  value="Upper" > Upper			</label>			<label class="btn btn-info">				<input type="radio" name="options" id="Lower" autocomplete="off" value="Lower"> Lower			</label>			<label class="btn btn-info active">				<input type="radio" name="options" id="Full" autocomplete="off" value="Full" checked> Full			</label>		</div></div>'+
 		'<div class="col-md-4" >		<p class="buttonLabel"> Legend:</p>			<div id="legendDiv" class="btn-group" data-toggle="buttons" style="position: relative">				<label class="btn btn-info active">					<input type="radio" name="legend" autocomplete="off" checked id="circle" value="Circle"> Circle				</label>				<label class="btn btn-info">					<input type="radio" name="legend" autocomplete="off" id="square"  value="Square"> Square				</label>				<label class="btn btn-info">					<input type="radio" name="legend" autocomplete="off" id="ellipse" value="Ellipse"> Ellipse				</label>			</div>	</div>'+
-		'<div class="col-md-2" >		 <p class="buttonLabel"> Number: </p>		<button type="button" id="numShow" class="btn btn-outline-info" value="show">Show</button>	</div></div>'+
-		'<br/><br/><br/>'
+		'<div class="col-md-2" >		 <p class="buttonLabel"> Number: </p>		<button type="button" id="numShow" class="btn btn-outline-info" value="show">Show</button>	</div></div>'
+
 //在div元素中添加按钮
 	var bottonDiv = corrplotArea.append("div")
 		.html(buttonHTML)
-  var seqChangeBar = corrplotArea.append("div")
-  .attr("id", "seqChangeBar")
+
   //  console.log(buttonHTML)
     return wrapDiv;
   },
@@ -38,7 +37,8 @@ var corrplotArea = d3.select(el).append('div')
   renderValue: function(el, x, wrapDiv) {
 	 wrapDiv.selectAll("div").remove();
 	 wrapDiv.selectAll("svg").remove();
-
+   seqChangeBar = wrapDiv.append("div")
+   .attr("id", "seqChangeBar")
 	 plotDiv = wrapDiv.append("div")
 		.attr("class", "corrplot")
 		.attr("id", "corrplot-1")
@@ -116,9 +116,11 @@ var  n = mvisCorrplotData["matrixLength"];
 		maxValue = 1;
 		middleValue = 0;
 		minValue = -1;
-numLabelSize = 0.01*w
+numLabelSize = 0.015*w
 sigshow = false
 		maxCol = mvisCorrplotData["color"][0];
+    console.log(maxCol)
+
 		middleCol = mvisCorrplotData["color"][1];
 		minCol = mvisCorrplotData["color"][2];
 		newSeq = mvisCorrplotData["orderList"]["original"]
@@ -146,7 +148,7 @@ if(pMat[i][j]>0.05){
 		$( "#diagDiv" ).buttonset();
 		$( "#numShow" ).button();
 
-		$("bottonBox").css("margin-left")
+//		$("bottonBox").css("margin-left")
 // 颜色进制转换  使用prototype给string添加方法
 		var reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;//正则表达式
 		String.prototype.colorHex = function(){
@@ -200,6 +202,7 @@ if(pMat[i][j]>0.05){
 				return sColor;
 			}
 		};
+
 //计算大量数据
 
 		var parse_mvisCorrplotData = function(a){//该函数计算矩阵可视化每个cell的属性值
@@ -236,7 +239,7 @@ if(pMat[i][j]>0.05){
 			}
 		}
 /*           */
-//按照corr的产生颜色
+//\
 		var colorSelector = function(v){
 
 			var returnCol = new Array(3);
@@ -263,6 +266,14 @@ if(pMat[i][j]>0.05){
 			}
 		}
 
+    function colorRGB2Hex(rgb) {
+        var r = parseInt(rgb[0]);
+        var g = parseInt(rgb[1]);
+        var b = parseInt(rgb[2]);
+
+        var hex = "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        return hex;
+     }
 /* ################ */
 //水平线和垂直线的定义，计算
 
@@ -276,7 +287,7 @@ lineEnd = 0.85*w;
 cellSize = (lineEnd - lineStart)/n;//cell的个数
 maxR = 0.9 * cellSize;//应该是定义圈的最大最小值
 minR = 0.1 * cellSize;
-numLabelSize = 0.01*w
+numLabelSize = 0.015*w
 pchSider = 0.005*w
 		for (i=0; i<n+1; i++){
 			vLineArray[i] =  new Array(cellSize*i + lineStart, lineStart, cellSize*i + lineStart, lineEnd)
@@ -285,6 +296,7 @@ pchSider = 0.005*w
 
 
 //数据转换
+var corr = mvisCorrplotData["matrixData"]
 	aData = parse_mvisCorrplotData(mvisCorrplotData["matrixData"])
 	//console.log(aData)
 
@@ -401,12 +413,15 @@ else if (method=="ellipse"){//
 
 	// Fixed
 //Y 坐标
+
 	var axisLabel_Y = svg.selectAll(".axis_YNormal").data(mvisCorrplotData["colNames"]).enter().append("text")
 			.attr("class", function(d,i){return "axis_YNormal text_Y_" + (newSeq[i]-1)})
 			.attr("x", lineStart-3)
 			.attr("y", function(d,i){return (newSeq[i]-0.5)*cellSize+lineStart+5;})
 			.text(function(d){return d;})
-			.attr("font-size",numLabelSize*2)
+			.attr("font-size",numLabelSize*1.5)
+      .attr("color","transparent")
+
 //console.log("add axis")
 	//Fixed
   //x坐标
@@ -417,7 +432,7 @@ else if (method=="ellipse"){//
 		.attr("transform", "rotate(-90,"+lineStart+","+lineStart+")")
     //90度在坐标轴上方
 		.text(function(d){return d;})
-    .attr("font-size",numLabelSize*2)
+    .attr("font-size",numLabelSize*1.5)
 //	vLineArray[i] =
 // new Array(cellSize*i + lineStart, lineStart, cellSize*i + lineStart, lineEnd)
 //  hLineArray[i] =
@@ -454,23 +469,89 @@ else if (method=="ellipse"){//
 				.attr("stroke", "gray").attr("stroke-width",1)
 /* */
 
-	gradientColor = [maxCol, middleCol, minCol];
+
+
 /*画出legend*/
 	var drawLegend = function(){
-			var legend = svg.selectAll("legend")
+
+console.log(d3.rgb(maxCol))
+
+var legend = svg.selectAll(".legend")
 					.data([1]).enter()//经常使用data([1])来添加一个元素？？？
 					.append("g")
-			var legendWidth = 0.05*w;
-			var rectGradient = legend.selectAll("rectgradient")
-					.data([1])
+var legendWidth = 0.05*w;
+//线性渐变
+    //绿色
+//
+var defs = legend.append("defs");
+var linearGradient = defs.append("linearGradient")
+.attr("id","linearColor1")
+.attr("x1","0%")
+.attr("y1","0%")
+.attr("x2","0%")
+.attr("y2","100%")
+var stopI1 = linearGradient.append("stop")
+.attr("offset","0%")
+.style("stop-color",d3.rgb(maxCol).toString())
+
+
+
+var stopI2 = linearGradient.append("stop")
+.attr("offset","100%")
+.style("stop-color",d3.rgb(middleCol).toString())
+//2
+
+var linearGradient = defs.append("linearGradient")
+.attr("id","linearColor2")
+.attr("x1","0%")
+.attr("y1","0%")
+.attr("x2","0%")
+.attr("y2","100%")
+var stopII1 = linearGradient.append("stop")
+.attr("offset","0%")
+.style("stop-color",d3.rgb(middleCol).toString())
+
+//console.log(a.toString())
+
+var stopII2 = linearGradient.append("stop")
+.attr("offset","100%")
+.style("stop-color",d3.rgb(minCol).toString())
+//
+
+
+
+var  rectGradient1 = legend.append("rect")
+.attr("x",w-legendWidth*2.2)
+.attr("y",lineStart).attr("width",legendWidth).attr("height",1/2*n*cellSize)
+.style("fill","url(#linearColor1)")
+
+var  rectGradient2 = legend.append("rect")
+.attr("x",w-legendWidth*2.2)
+.attr("y",lineStart+1/2*n*cellSize).attr("width",legendWidth).attr("height",1/2*n*cellSize)
+.style("fill","url(#linearColor2)")
+
+
+//console.log(d3.select("#linearColor1"))
+
+/*
+			var rectGradient = legend.selectAll(".rectgradient")
+					.data(nBars)
 					.enter().append("rect")
 					.attr("id", "rectGradient")
 					.attr("x", w-legendWidth*2.2)
-					.attr("y", lineStart)
+					.attr("y", function(d,i){
+            return w/nBar*i+lineStart} )
 					.attr("width", legendWidth)
-					.attr("height", cellSize*n)
-					.attr("fill","url(#grad2)")//url id=grad2
+					.attr("height", w/nBar)
+          .style("fill",function(d,i){
+            if(i<nBar/2){
+              return  compute1(liner1(d));
+            }else {
+              return  compute2(liner2(d));
+            }
 
+          })
+*/
 
 //
 			var legendLabelDefine =  function(maxValue, minValue){
@@ -1235,6 +1316,15 @@ console.log({"seqInChange":newSeq})
 
 
 	}
+
+/*2018-2-19 */
+
+$(function(){
+  $(".axis_YNormal").sortable()
+
+})
+
+
 /*add 2018-1-30 实现cell拖拽 */
 //function DragExchange (d,i){
 /*
@@ -1464,30 +1554,8 @@ if(sigshow){
     drawPch(newSeq=newSeq)}
 	});
 
-// 按钮可以移动
-
-//  增加一个sortable板
-//console.log({colNames:x["data"]["colNames"]})
-
-//利用sortable bars来实现变换
-
-//
-
-
-
-
-
-//console.log({"newSeq":newSeq})
-
-//console.log(getSeq())
-
-//console.log(getSeq()==newSeq)
-
-//console.log($(".sortBars").$("li:first").next().text())
-//[0,1,2]  [1,0,2]  [1,0,2]
-//console.log( {"zindex":$(".sortBars").sortable("option","zIndex")});
-
 // 人为改变的bars
+
 
 $("#barsSeq").on("click", function() {
   //console.log(1233332)
@@ -1510,7 +1578,7 @@ nowSeq[j] = colNames[newSeq[j]-1]
 //console.log(nowSeq)
 
 
-barText[i] =   $(".sortBars li:eq("+i+")").text();
+barText[i] =   $(".sortBars div:eq("+i+")").text();
 
 }
 console.log(barText)
@@ -1518,6 +1586,7 @@ for(var i=0;i<colNames.length;i++){
 
 barSeq[i] = barText.indexOf(colNames[i])+1;//这里坑了很久。。。
 }
+
 
 //console.log(barSeq)
 return barSeq;
@@ -1550,46 +1619,56 @@ if(sigshow){
 /**/
 
 		//var rects = svg.selectAll(".rect")
+
+
+
 	}
 //end init
 
-function addBars(){
-
-  function nameToHtml(){
-
-  var nameBars = new String();
-  for(var i=0;i<colNames.length;i++){
-
-
-    for(var j=0;j<colNames.length;j++){
-    nowSeq[j] = colNames[newSeq[j]-1]
-
-    }
-
-  var temBar = "<div><li>"+nowSeq[i]+"</li></div>";
-  nameBars = nameBars+temBar;
-
-  }
-
-  return nameBars;
-  }
-
-  var nameBars = nameToHtml();
-  //console.log(nameBars)
-
-
-  d3.select("#seqChangeBar").append("div").attr("class","sortBars")
-  .html(nameBars)
-    var barsBotton = '<button type="button" id="barsSeq">barsSeq</button>';
-  d3.select("#seqChangeBar").append("div").html(barsBotton)
-
-  $(".sortBars").sortable();
-}
-  addBars()
 /**/
+/*
+    function addBars(){
 
 
 
+
+      function nameToHtml(){
+
+      var nameBars = new String();
+      for(var i=0;i<colNames.length;i++){
+
+
+        for(var j=0;j<colNames.length;j++){
+        nowSeq[j] = colNames[newSeq[j]-1]
+
+        }
+
+
+
+      var temBar = "<div id='seqSortBars'>"+nowSeq[i]+"</div>";
+      nameBars = nameBars+temBar;
+
+      }
+
+      return nameBars;
+      }
+
+      var nameBars = nameToHtml();
+      //console.log(nameBars)
+
+
+      d3.select("#seqChangeBar").append("div").attr("class","sortBars")
+      .html(nameBars)
+    d3.select("#sortBar").selectAll("div").style("margin-top",lineStart)
+        var barsBotton = '<button type="button" id="barsSeq">change sequence by hand</button>';
+      d3.select("#seqChangeBar").append("div").html(barsBotton)
+
+      $(".sortBars").sortable();
+    }
+      addBars()
+
+
+*/
 
 
 /**/
@@ -1614,7 +1693,7 @@ $("#svgSizeSub").on("click",function(){
 console.log(w)
 
 d3.selectAll("#plotSVG").remove();
-
+d3.selectAll("#seqSortBars").remove();
 w = $("#svgSizeSlider").slider("value");
 h = w;
 
@@ -1637,6 +1716,7 @@ wrapDiv.append("svg")
  .html(svgHTML)
 */
 init_corrplot(method = method)
+
 })
 })
 

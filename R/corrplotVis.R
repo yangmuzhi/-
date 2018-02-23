@@ -29,7 +29,7 @@ corrplotVis <- function(corr, color = NULL, size=c(950,900),
 	if(is.null(color)){
 		color = c("#053061", "#FFFFFF", "#67001F")
 	}else{
-		color = colorRampPalette(color)(3)#为什么要选择(3)  生成颜色
+		color = colorRampPalette(color)(3)#选择3个，max mid min  生成颜色
 	}
 ##去除corr矩阵的名称
 	corr <- as.matrix(corr)

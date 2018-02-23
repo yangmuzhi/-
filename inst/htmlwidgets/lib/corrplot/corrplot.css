@@ -202,17 +202,11 @@ zoom:1.5;
   display: flex;
 }
 
-#seqChangeBar{
-  order: -1;
-  width: 100px;
-  margin-top: 30px;
-}
-
 #bottonBox{
-order: : 1;
+order:  0;
 width:200px;
 font-family:sans-serif;
-margin-left: 50px;
+margin-left: -250px;
 margin-top: 30px;
 }
 
@@ -221,5 +215,14 @@ margin-top: 30px;
 }
 
 #content-wrapper{
-order: 0;
+order: -1;
+display: flex;
+}
+
+
+
+
+
+#corrplot-1{
+  order: 0;
 }
